@@ -1,0 +1,216 @@
+/* style.css */
+
+/* --- Theme Variables --- */
+:root {
+    --bg-color: #f4f4f4;
+    --card-bg-color: #fff;
+    --text-color: #333;
+    --text-color-light: #666;
+    --input-bg-color: #fff;
+    --input-border-color: #ccc;
+    --input-text-color: #333;
+    --link-color: #0275d8;
+    --button-primary-bg: #5cb85c;
+    --button-primary-hover-bg: #4cae4c;
+    --button-secondary-bg: #0275d8;
+    --button-secondary-hover-bg: #025aa5;
+    --button-danger-bg: #d9534f;
+    --button-danger-hover-bg: #c9302c;
+    --button-control-bg: #f8f9fa;
+    --button-control-hover-bg: #e2e6ea;
+    --button-control-border: #ced4da;
+    --button-control-active-bg: #dc3545; /* Red for mute/off */
+    --status-success-bg: #dff0d8;
+    --status-success-text: #3c763d;
+    --status-success-border: #d6e9c6;
+    --status-error-bg: #f2dede;
+    --status-error-text: #a94442;
+    --status-error-border: #ebccd1;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --socket-status-connecting-color: grey;
+    --socket-status-online-color: green;
+    --socket-status-error-color: red;
+    --video-bg-color: #212121;
+    --label-bg-color: rgba(0, 0, 0, 0.6);
+    --label-text-color: #fff;
+}
+
+body.dark-mode {
+    --bg-color: #1a1a1a;
+    --card-bg-color: #2c2c2c;
+    --text-color: #e0e0e0;
+    --text-color-light: #aaa;
+    --input-bg-color: #333;
+    --input-border-color: #555;
+    --input-text-color: #e0e0e0;
+    --link-color: #4dabf7;
+    --button-primary-bg: #4caf50;
+    --button-primary-hover-bg: #388e3c;
+    --button-secondary-bg: #2196F3;
+    --button-secondary-hover-bg: #1976D2;
+    --button-danger-bg: #f44336;
+    --button-danger-hover-bg: #d32f2f;
+    --button-control-bg: #343a40;
+    --button-control-hover-bg: #495057;
+    --button-control-border: #495057;
+    --button-control-active-bg: #ef5350; /* Lighter red for dark active */
+    --status-success-bg: #1b3d1b;
+    --status-success-text: #a5d6a7;
+    --status-success-border: #2e7d32;
+    --status-error-bg: #4d1f1f;
+    --status-error-text: #ef9a9a;
+    --status-error-border: #c62828;
+    --shadow-color: rgba(0, 0, 0, 0.3); /* Darker shadow in dark mode */
+    --socket-status-connecting-color: #aaa;
+    --socket-status-online-color: #66bb6a;
+    --socket-status-error-color: #ef5350;
+    --video-bg-color: #111;
+    --label-bg-color: rgba(0, 0, 0, 0.6);
+    --label-text-color: #e0e0e0;
+}
+
+/* --- Base Body & Structure --- */
+html { box-sizing: border-box; }
+*, *:before, *:after { box-sizing: inherit; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    line-height: 1.6; margin: 0; background-color: var(--bg-color); color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease; position: relative; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+}
+body.in-chat { justify-content: flex-start; }
+
+/* --- Headings & Text --- */
+h1, h2 { text-align: center; color: var(--text-color); font-weight: 300; }
+h1 { margin-top: 60px; margin-bottom: 25px; font-size: 2.5rem;}
+h2 { margin-bottom: 20px; font-weight: 400; font-size: 1.5rem; }
+p { margin-top: 10px; text-align: center; font-size: 0.95em; color: var(--text-color-light);}
+a { color: var(--link-color); text-decoration: none; font-weight: 500; }
+a:hover { text-decoration: underline; }
+
+/* --- Auth View Styling --- */
+#auth-container { max-width: 420px; width: 90%; padding: 35px; background-color: var(--card-bg-color); border-radius: 8px; box-shadow: 0 5px 15px var(--shadow-color); border: 1px solid var(--input-border-color); }
+#auth-container h2 { margin-top: 0; }
+#auth-container div { margin-bottom: 18px; }
+#auth-container label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9em; }
+#auth-container input[type="text"], #auth-container input[type="password"], #auth-container select { width: 100%; padding: 12px; border: 1px solid var(--input-border-color); background-color: var(--input-bg-color); color: var(--input-text-color); border-radius: 4px; font-size: 1rem; transition: all 0.2s ease-in-out; }
+#auth-container input:focus, #auth-container select:focus { border-color: var(--button-secondary-bg); box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2); outline: none;}
+body.dark-mode #auth-container input::placeholder { color: #bbb; }
+#auth-container button { width: 100%; padding: 12px 15px; margin-top: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: 500; transition: background-color 0.2s ease;}
+#register-form button { background-color: var(--button-primary-bg); color: white;}
+#register-form button:hover { background-color: var(--button-primary-hover-bg); }
+#login-form button { background-color: var(--button-secondary-bg); color: white;}
+#login-form button:hover { background-color: var(--button-secondary-hover-bg); }
+#auth-container p { margin-top: 25px; font-size: 0.9em; }
+
+/* --- Logged In / Idle View --- */
+#logged-in-view { max-width: 500px; width: 90%; text-align: center; background-color: transparent; box-shadow: none; border: none; display: none; margin-top: 20px; }
+#user-info-box { background-color: var(--card-bg-color); padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px var(--shadow-color); border: 1px solid var(--input-border-color); }
+#logged-in-view h1 { margin-top: 0; margin-bottom: 20px;}
+#logged-in-view h2 { margin-top: 0; margin-bottom: 15px; font-weight: 400; }
+#logged-in-view p { margin-top: 8px; font-size: 0.95rem; text-align: left; }
+#logged-in-view span, #logged-in-view strong { font-weight: 500; }
+#logged-in-view button { width: auto; padding: 10px 20px; margin: 15px 10px 0 10px; display: inline-block; border: none; border-radius: 4px; cursor: pointer; font-size: 0.95rem; font-weight: 500; transition: background-color 0.2s ease;}
+#start-chat-button { background-color: var(--button-primary-bg); color: white; }
+#start-chat-button:hover:not(:disabled) { background-color: var(--button-primary-hover-bg); }
+#start-chat-button:disabled { opacity: 0.6; cursor: not-allowed; }
+#logout-button { background-color: var(--button-danger-bg); color: white; }
+#logout-button:hover { background-color: var(--button-danger-hover-bg); }
+
+/* --- Video Chat View --- */
+#video-chat-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--video-bg-color); flex-direction: column; justify-content: flex-start; align-items: center; z-index: 10; }
+body.in-chat #video-chat-container { display: flex; }
+
+#videos { display: flex; width: 100%; height: calc(100% - 70px); justify-content: center; align-items: stretch; padding: 5px; gap: 5px; flex-grow: 1; }
+.video-wrapper { flex: 1 1 50%; position: relative; background-color: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; border-radius: 4px; }
+video { display: block; width: 100%; height: 100%; object-fit: cover; background-color: #111; }
+#localVideo { transform: scaleX(-1); }
+#remoteVideo { transform: scaleX(1); }
+.video-label { position: absolute; bottom: 10px; left: 10px; background-color: var(--label-bg-color); color: var(--label-text-color); padding: 4px 8px; border-radius: 4px; font-size: 0.8em; z-index: 5; pointer-events: none; }
+
+/* Hide Auth/Idle view when Chat is Active */
+body.in-chat #auth-container, body.in-chat #logged-in-view { display: none; }
+
+/* --- Chat Controls Bar --- */
+#chat-controls { display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background-color: var(--card-bg-color); box-shadow: 0 -2px 5px var(--shadow-color); padding: 0 20px; box-sizing: border-box; flex-direction: row; justify-content: center; align-items: center; gap: 15px; z-index: 20; }
+body.in-chat #chat-controls { display: flex; }
+
+#chat-controls button { width: 50px; height: 50px; font-size: 0; padding: 0; margin: 0; display: flex; justify-content: center; align-items: center; border-radius: 50%; color: var(--text-color); background-color: var(--button-control-bg); border: 1px solid var(--button-control-border); cursor: pointer; transition: all 0.2s ease; }
+#chat-controls button::before { font-size: 20px; vertical-align: middle; display: inline-block; }
+#chat-controls button:hover:not(:disabled) { border-color: var(--text-color); background-color: var(--button-control-hover-bg); transform: translateY(-2px); }
+#chat-controls button:active:not(:disabled) { transform: translateY(0); }
+#chat-controls button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;}
+
+#skip-button { width: auto; padding: 10px 25px; font-size: 0.9rem; border-radius: 25px; background-color: var(--button-secondary-bg); color: white; border: none; font-weight: 500;}
+#skip-button:hover { background-color: var(--button-secondary-hover-bg); border: none; transform: translateY(-2px); }
+
+#mute-button.muted, #video-toggle-button.video-off { background-color: var(--button-control-active-bg); color: white; border-color: transparent; }
+#mute-button.muted:hover, #video-toggle-button.video-off:hover { background-color: var(--button-danger-hover-bg); border-color: transparent;}
+#mute-button::before { content: '🎤'; }
+#mute-button.muted::before { content: '🔇'; }
+#video-toggle-button::before { content: '📷'; }
+#video-toggle-button.video-off::before { content: '🚫'; }
+
+/* --- Theme Toggle Button --- */
+.theme-switch-wrapper { position: absolute; top: 15px; right: 20px; z-index: 100; }
+#theme-toggle-button { background-color: var(--card-bg-color); color: var(--text-color); border: 1px solid var(--input-border-color); width: 40px; height: 40px; padding: 0; font-size: 0; line-height: 40px; text-align: center; border-radius: 50%; cursor: pointer; transition: all 0.2s ease; margin-top: 0; box-shadow: 0 1px 3px var(--shadow-color); overflow: hidden; }
+#theme-toggle-button::before { font-size: 18px; display: inline-block; vertical-align: middle; }
+body.dark-mode #theme-toggle-button::before { content: '☀️'; }
+body:not(.dark-mode) #theme-toggle-button::before { content: '🌙'; }
+#theme-toggle-button:hover { background-color: var(--bg-color); transform: scale(1.1) rotate(15deg); box-shadow: 0 2px 6px var(--shadow-color); }
+
+/* --- Global Status Messages --- */
+#status-message { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); min-width: 250px; max-width: 90%; padding: 10px 15px; text-align: center; border-radius: 4px; font-weight: 500; z-index: 50; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s linear 0.3s; background-color: var(--card-bg-color); border: 1px solid var(--input-border-color); box-shadow: 0 2px 5px var(--shadow-color); }
+#status-message.success, #status-message.error { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s linear 0s; }
+#status-message.success { background-color: var(--status-success-bg); color: var(--status-success-text); border: 1px solid var(--status-success-border); }
+#status-message.error { background-color: var(--status-error-bg); color: var(--status-error-text); border: 1px solid var(--status-error-border); }
+
+/* --- Video Preview Styles --- */
+#preview-container {
+    width: 240px; /* Adjust size as needed */
+    max-width: 80%;
+    aspect-ratio: 4 / 3; /* Maintain a 4:3 aspect ratio */
+    margin: 15px auto 20px; /* Center it below the welcome message */
+    position: relative;
+    background-color: #333; /* Dark background while loading/failed */
+    border-radius: 6px;
+    overflow: hidden; /* Keep video rounded */
+    border: 1px solid var(--input-border-color);
+}
+
+#previewVideo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror the preview */
+}
+
+.preview-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #eee;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    text-align: center;
+    margin: 0; /* Override default p margin */
+    display: none; /* Hidden by default, shown by JS */
+}
+
+/* Show status message when preview video is hidden or loading */
+#preview-container video:not([srcObject]) + .preview-message {
+    display: block; /* Show message if video has no srcObject */
+}
+/* Style for when permission fails */
+#preview-container.permission-failed .preview-message {
+    display: block;
+    background-color: rgba(180, 0, 0, 0.7); /* Reddish background for error */
+}
+#preview-container.permission-failed video {
+     display: none; /* Hide video element on failure */
+}

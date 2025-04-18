@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniVibe Video Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Socket.IO Client (integrity removed for dev simplicity) -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body> <!-- Body class 'in-chat' added/removed by JS -->
+
+    <!-- Theme Toggle Button -->
+    <div class="theme-switch-wrapper">
+        <button id="theme-toggle-button" title="Toggle theme">🌙</button> <!-- Icon set via CSS -->
+    </div>
+
+    <!-- AUTHENTICATION / LOGIN VIEW -->
+    <div id="auth-container">
+        <!-- Registration Form -->
+        <div id="register-section">
+            <h2>Register</h2>
+            <form id="register-form">
+                <div><label for="reg-username">Username:</label><input type="text" id="reg-username" required></div>
+                <div><label for="reg-password">Password:</label><input type="password" id="reg-password" required minlength="6"></div>
+                <div><label for="reg-gender">Your Gender:</label><select id="reg-gender" required><option value="" disabled selected>Select...</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
+                <div><label for="reg-preference">Looking for:</label><select id="reg-preference" required><option value="any" selected>Any</option><option value="male">Male</option><option value="female">Female</option></select></div>
+                <button type="submit">Register</button>
+            </form>
+            <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+        </div>
+        <!-- Login Form -->
+        <div id="login-section" style="display: none;">
+             <h2>Login</h2>
+            <form id="login-form">
+                <div><label for="login-username">Username:</label><input type="text" id="login-username" required></div>
+                <div><label for="login-password">Password:</label><input type="password" id="login-password" required></div>
+                <button type="submit">Login</button>
+            </form>
+             <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+        </div>
+    </div>
+
+
+       <!-- LOGGED IN / IDLE VIEW -->
+       <div id="logged-in-view" style="display: none;"> <!-- Start hidden -->
+        <h1>UniVibe</h1>
+        <div id="user-info-box">
+           <h2>Welcome, <span id="logged-in-username"></span>!</h2>
+
+           <!-- START: Added Video Preview -->
+           <div id="preview-container">
+               <video id="previewVideo" autoplay muted playsinline></video>
+               <p id="preview-status" class="preview-message">Checking camera...</p>
+           </div>
+           <!-- END: Added Video Preview -->
+
+           <p>Gender: <span id="logged-in-gender"></span> | Preference: <span id="logged-in-preference"></span></p>
+           <p>Connection: <strong id="socket-status">Offline</strong></p>
+           <p>Chat Status: <strong id="chat-status">Idle</strong></p>
+           <button id="start-chat-button" disabled>Start Chatting</button> <!-- Stays disabled until preview works AND socket connects -->
+           <button id="logout-button">Logout</button>
+        </div>
+   </div>
+
+
+    <!-- VIDEO CHAT VIEW -->
+    <div id="video-chat-container" > <!-- Start hidden -->
+        <div id="videos">
+            <div class="video-wrapper">
+                <video id="localVideo" autoplay muted playsinline></video>
+                <span class="video-label">You</span>
+            </div>
+            <div class="video-wrapper">
+                 <video id="remoteVideo" autoplay playsinline></video>
+                 <span class="video-label">Stranger</span>
+            </div>
+       </div>
+       <!-- Chat Controls Bar is positioned fixed at bottom via CSS -->
+    </div>
+
+
+     <!-- CHAT CONTROLS BAR -->
+     <div id="chat-controls" style="display: none;"> <!-- Start hidden -->
+         <button id="mute-button" title="Mute/Unmute Audio">🎤</button>
+         <button id="video-toggle-button" title="Turn Camera On/Off">📷</button>
+         <button id="skip-button">Skip</button>
+         <!-- Text Chat Elements Placeholder
+         <input type="text" id="chat-input" placeholder="Type message...">
+         <button id="send-message-button">Send</button>
+         -->
+     </div>
+
+
+    <!-- GLOBAL STATUS MESSAGE AREA -->
+    <div id="status-message" class="status"></div>
+
+
+    <!-- APP SCRIPT -->
+    <script src="app.js"></script>
+</body>
+</html>
