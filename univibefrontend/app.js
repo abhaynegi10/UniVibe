@@ -16,11 +16,11 @@ let isWebRTCInitiator = false;
 let makingOffer = false; // Flag to prevent duplicate offer creation
 
 const pcConfig = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    // Add TURN server here for production
-  ]
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        // Add TURN server here for production
+    ]
 };
 
 // ==================================================
@@ -89,15 +89,18 @@ function loadTheme() { const savedTheme = localStorage.getItem('theme') || 'ligh
 // 4. State Management (Auth, etc.)
 // ==================================================
 // --- Modified checkLoginStatus to be async and start preview ---
-async function checkLoginStatus() { // Make async
+async function checkLoginStatus() { // Make async if starting preview
+    console.log("Running checkLoginStatus (normal load or post-callback)...");
     const token = localStorage.getItem('authToken');
     const user = JSON.parse(localStorage.getItem('authUser'));
     if (token && user) {
+        console.log("Found existing token/user in localStorage.");
         showView('logged-in');
         showUserInfo(user);
-        await startPreview(); // <<<<<<< START PREVIEW HERE on page load if logged in
+        await startPreview(); // Start preview if logged in
         connectWebSocket(token);
     } else {
+        console.log("No existing token/user found, showing login.");
         showView('login');
     }
 }
@@ -107,8 +110,8 @@ function clearLoginData() { localStorage.removeItem('authToken'); localStorage.r
 // ==================================================
 // 5. UI Update Functions (General)
 // ==================================================
-function updateSocketStatus(text, color) { if(socketStatusSpan){ socketStatusSpan.textContent = text; socketStatusSpan.style.color = color; } }
-function updateChatStatus(text) { if(chatStatusSpan){ chatStatusSpan.textContent = text; } }
+function updateSocketStatus(text, color) { if (socketStatusSpan) { socketStatusSpan.textContent = text; socketStatusSpan.style.color = color; } }
+function updateChatStatus(text) { if (chatStatusSpan) { chatStatusSpan.textContent = text; } }
 
 // ==================================================
 // 5. UI Update Functions (General) - Updated showView
@@ -122,7 +125,7 @@ function showView(viewName) {
     loggedInView.style.display = viewName === 'logged-in' ? 'block' : 'none';
 
     // --- Manage body class for video/controls visibility ---
-    if(viewName !== 'in-chat') {
+    if (viewName !== 'in-chat') {
         // --- Debug Log: Removing class ---
         console.log("Removing 'in-chat' class from body (if present). Current classes:", bodyElement.classList);
         bodyElement.classList.remove('in-chat');
@@ -144,11 +147,11 @@ function showView(viewName) {
         if (loginSection) loginSection.style.display = 'block';
     }
 }
-function showUserInfo(user){ loggedInUsernameSpan.textContent = user.username; loggedInGenderSpan.textContent = user.gender; loggedInPreferenceSpan.textContent = user.preference; }
+function showUserInfo(user) { loggedInUsernameSpan.textContent = user.username; loggedInGenderSpan.textContent = user.gender; loggedInPreferenceSpan.textContent = user.preference; }
 
 function showStatusMessage(message, isError = false) {
     statusMessageDiv.textContent = message; statusMessageDiv.className = 'status'; statusMessageDiv.classList.add(isError ? 'error' : 'success');
-     clearTimeout(statusMessageDiv.timer); statusMessageDiv.timer = setTimeout(() => {statusMessageDiv.className = 'status';}, isError ? 5000 : 3500);
+    clearTimeout(statusMessageDiv.timer); statusMessageDiv.timer = setTimeout(() => { statusMessageDiv.className = 'status'; }, isError ? 5000 : 3500);
 }
 function clearStatusMessage() { statusMessageDiv.className = 'status'; }
 
@@ -170,14 +173,14 @@ function resetChatUI(mode = 'idle') {
 // ==================================================
 // 6. Media Controls & Permissions
 // ==================================================
-function updateMuteButton(isEnabled) { if(muteButton){ muteButton.classList.toggle('muted', !isEnabled); muteButton.title = isEnabled ? "Mute" : "Unmute"; } }
-function updateVideoToggleButton(isEnabled) { if(videoToggleButton){ videoToggleButton.classList.toggle('video-off', !isEnabled); videoToggleButton.title = isEnabled ? "Cam Off":"Cam On"; } }
+function updateMuteButton(isEnabled) { if (muteButton) { muteButton.classList.toggle('muted', !isEnabled); muteButton.title = isEnabled ? "Mute" : "Unmute"; } }
+function updateVideoToggleButton(isEnabled) { if (videoToggleButton) { videoToggleButton.classList.toggle('video-off', !isEnabled); videoToggleButton.title = isEnabled ? "Cam Off" : "Cam On"; } }
 
 function updateMediaButtonsState(streamIsActive) {
     // This function now correctly depends on updateMuteButton and updateVideoToggleButton being defined
     if (!localStream || !streamIsActive) {
-        if(muteButton) muteButton.disabled = true;
-        if(videoToggleButton) videoToggleButton.disabled = true;
+        if (muteButton) muteButton.disabled = true;
+        if (videoToggleButton) videoToggleButton.disabled = true;
         updateMuteButton(false); // Ensure icons reflect disabled state
         updateVideoToggleButton(false);
         return;
@@ -185,8 +188,8 @@ function updateMediaButtonsState(streamIsActive) {
     const audioEnabled = localStream.getAudioTracks().some(t => t.enabled);
     const videoEnabled = localStream.getVideoTracks().some(t => t.enabled);
     updateMuteButton(audioEnabled); updateVideoToggleButton(videoEnabled);
-    if(muteButton) muteButton.disabled = localStream.getAudioTracks().length === 0;
-    if(videoToggleButton) videoToggleButton.disabled = localStream.getVideoTracks().length === 0;
+    if (muteButton) muteButton.disabled = localStream.getAudioTracks().length === 0;
+    if (videoToggleButton) videoToggleButton.disabled = localStream.getVideoTracks().length === 0;
 }
 
 // --- Modified getMediaPermissions to handle preview ---
@@ -241,7 +244,7 @@ async function getMediaPermissions(showPreview = false) { // Add showPreview fla
         } else if (error.name === 'NotFoundError') {
             userErrorMessage = 'No camera/mic found. Ensure they are connected/enabled.';
         } else if (error.name === 'NotReadableError') {
-             userErrorMessage = 'Camera might be in use by another app.';
+            userErrorMessage = 'Camera might be in use by another app.';
         }
 
         // Show error in main status and preview status
@@ -297,7 +300,7 @@ function toggleVideo() { if (!localStream) return; localStream.getVideoTracks().
 // 7. Core WebRTC Logic Functions
 // ==================================================
 async function createOffer() {
-     if (!peerConnection || peerConnection.signalingState !== 'stable') { console.warn("PC: Cannot create offer in state:", peerConnection?.signalingState); return; } try { const offer = await peerConnection.createOffer(); await peerConnection.setLocalDescription(offer); sendSignalingMessage({ type: 'offer', sdp: offer.sdp }); console.log("PC: Offer created and sent.");} catch(e){handleWebRTCError("Offer creation failed.")}
+    if (!peerConnection || peerConnection.signalingState !== 'stable') { console.warn("PC: Cannot create offer in state:", peerConnection?.signalingState); return; } try { const offer = await peerConnection.createOffer(); await peerConnection.setLocalDescription(offer); sendSignalingMessage({ type: 'offer', sdp: offer.sdp }); console.log("PC: Offer created and sent."); } catch (e) { handleWebRTCError("Offer creation failed.") }
 }
 function sendSignalingMessage(msg) { if (socket?.connected && currentPeerId) socket.emit('webrtc-signal', { toId: currentPeerId, signal: msg }); }
 async function handleOffer(signal) {
@@ -326,12 +329,12 @@ async function handleOffer(signal) {
     }
 }
 async function handleAnswer(signal) {
-     if (!peerConnection || peerConnection.signalingState !== 'have-local-offer') { console.warn("PC: Cannot handle answer in state:", peerConnection?.signalingState); return; } try{ console.log("PC: Received answer, setting remote description..."); await peerConnection.setRemoteDescription(new RTCSessionDescription(signal)); console.log("PC: PeerConnection established!");} catch(e){handleWebRTCError("Answer handling failed.")}
+    if (!peerConnection || peerConnection.signalingState !== 'have-local-offer') { console.warn("PC: Cannot handle answer in state:", peerConnection?.signalingState); return; } try { console.log("PC: Received answer, setting remote description..."); await peerConnection.setRemoteDescription(new RTCSessionDescription(signal)); console.log("PC: PeerConnection established!"); } catch (e) { handleWebRTCError("Answer handling failed.") }
 }
 async function handleCandidate(signal) {
-     if (!signal.candidate || !peerConnection) return; try{ console.log("PC: Adding received ICE candidate..."); await peerConnection.addIceCandidate(new RTCIceCandidate(signal.candidate)); } catch(e){if(!peerConnection?.remoteDescription) console.warn("PC: Candidate ignored (no remote description yet)"); else console.error("PC: Add ICE candidate error:",e);}
+    if (!signal.candidate || !peerConnection) return; try { console.log("PC: Adding received ICE candidate..."); await peerConnection.addIceCandidate(new RTCIceCandidate(signal.candidate)); } catch (e) { if (!peerConnection?.remoteDescription) console.warn("PC: Candidate ignored (no remote description yet)"); else console.error("PC: Add ICE candidate error:", e); }
 }
-function closePeerConnection() { if(peerConnection){ console.log("PC: Closing PeerConnection."); peerConnection.onicecandidate=null; peerConnection.ontrack=null; peerConnection.onnegotiationneeded=null; peerConnection.oniceconnectionstatechange=null; peerConnection.onicegatheringstatechange=null; peerConnection.onsignalingstatechange=null; peerConnection.close(); peerConnection=null; isWebRTCInitiator = false; } }
+function closePeerConnection() { if (peerConnection) { console.log("PC: Closing PeerConnection."); peerConnection.onicecandidate = null; peerConnection.ontrack = null; peerConnection.onnegotiationneeded = null; peerConnection.oniceconnectionstatechange = null; peerConnection.onicegatheringstatechange = null; peerConnection.onsignalingstatechange = null; peerConnection.close(); peerConnection = null; isWebRTCInitiator = false; } }
 
 
 // ==================================================
@@ -358,23 +361,23 @@ function handleTrackEvent(event) {
         // Optional: Log tracks currently in the stream
         console.log(`PC: Tracks in remoteVideo stream now: ${remoteVideo.srcObject.getTracks().map(t => t.kind).join(', ')}`);
 
-         // ---- TEMPORARY DEBUGGING BORDER ----
-         if (event.track.kind === 'video') {
+        // ---- TEMPORARY DEBUGGING BORDER ----
+        if (event.track.kind === 'video') {
             console.log('!!! Video track added to srcObject !!!');
             remoteVideo.style.border = '3px solid lime';
-            setTimeout(() => { if(remoteVideo) remoteVideo.style.border = 'none'; }, 3000); // Remove border after 3s
-         }
-         // ---- END TEMPORARY DEBUGGING BORDER ----
+            setTimeout(() => { if (remoteVideo) remoteVideo.style.border = 'none'; }, 3000); // Remove border after 3s
+        }
+        // ---- END TEMPORARY DEBUGGING BORDER ----
 
     } else {
-         console.error("PC: remoteVideo.srcObject is not a MediaStream! Cannot add track.", remoteVideo.srcObject);
-         // Potentially try creating the stream again or handle the error
+        console.error("PC: remoteVideo.srcObject is not a MediaStream! Cannot add track.", remoteVideo.srcObject);
+        // Potentially try creating the stream again or handle the error
     }
 }
 function handleNegotiationNeededEvent() { console.log("PC: Negotiation needed event fired."); if (isWebRTCInitiator && peerConnection?.signalingState === 'stable') { console.log("PC: Initiator processing negotiation needed."); createOffer(); } } // Simple re-offer on negotiation needed for initiator
-function handleICEConnectionStateChangeEvent() { if(!peerConnection) return; console.log(`PC: ICE State: ${peerConnection.iceConnectionState}`); switch (peerConnection.iceConnectionState) { case 'checking': updateChatStatus("Connecting video..."); break; case 'connected': updateChatStatus("Video stream connected"); break; case 'completed': updateChatStatus("Video Connected!"); break; case 'disconnected': updateChatStatus("Video lost - reconnecting..."); break; case 'failed': updateChatStatus("Video Failed"); handleWebRTCError("Connection failed."); break; case 'closed': updateChatStatus("Video Closed"); break; } }
-function handleICEGatheringStateChangeEvent() { if(!peerConnection) return; console.log(`PC: ICE Gathering: ${peerConnection.iceGatheringState}`); }
-function handleSignalingStateChangeEvent() { if(!peerConnection) return; console.log(`PC: Signaling State: ${peerConnection.signalingState}`); }
+function handleICEConnectionStateChangeEvent() { if (!peerConnection) return; console.log(`PC: ICE State: ${peerConnection.iceConnectionState}`); switch (peerConnection.iceConnectionState) { case 'checking': updateChatStatus("Connecting video..."); break; case 'connected': updateChatStatus("Video stream connected"); break; case 'completed': updateChatStatus("Video Connected!"); break; case 'disconnected': updateChatStatus("Video lost - reconnecting..."); break; case 'failed': updateChatStatus("Video Failed"); handleWebRTCError("Connection failed."); break; case 'closed': updateChatStatus("Video Closed"); break; } }
+function handleICEGatheringStateChangeEvent() { if (!peerConnection) return; console.log(`PC: ICE Gathering: ${peerConnection.iceGatheringState}`); }
+function handleSignalingStateChangeEvent() { if (!peerConnection) return; console.log(`PC: Signaling State: ${peerConnection.signalingState}`); }
 
 // ==================================================
 // 9. `startWebRTCConnection` Function << USES HANDLERS DEFINED ABOVE
@@ -403,7 +406,7 @@ function startWebRTCConnection() {
 
         console.log("PC: Adding local media tracks...");
         localStream.getTracks().forEach(track => {
-             if (!tracksAddedSuccessfully) return;
+            if (!tracksAddedSuccessfully) return;
             try {
                 peerConnection.addTrack(track, localStream);
                 console.log(` -> Added ${track.kind} track.`);
@@ -456,8 +459,8 @@ async function handleNegotiationNeededEvent() {
             const offer = await peerConnection.createOffer();
             // Check if connection is still stable *before* setting local description
             if (peerConnection.signalingState !== 'stable') {
-                 console.warn("PC: State changed during offer creation, aborting negotiation.");
-                 return; // Exit if state changed mid-process
+                console.warn("PC: State changed during offer creation, aborting negotiation.");
+                return; // Exit if state changed mid-process
             }
             await peerConnection.setLocalDescription(offer);
             console.log("PC: Local description set (offer).");
@@ -478,21 +481,21 @@ async function handleNegotiationNeededEvent() {
 // === Keep createOffer (maybe rename?) for potential future re-offers if needed ===
 // Can be simplified if only used for re-negotiation later
 async function createOffer() {
-     // This might still be useful for manual re-offers later, but the initial offer
-     // is now handled by onnegotiationneeded
-     if (!peerConnection || makingOffer || peerConnection.signalingState !== 'stable') { console.warn("PC: Cannot create manual offer now."); return; }
-     try {
-         makingOffer = true;
-         const offer = await peerConnection.createOffer();
-         if (peerConnection.signalingState !== 'stable') { return; }
-         await peerConnection.setLocalDescription(offer);
-         sendSignalingMessage({ type: 'offer', sdp: offer.sdp });
-         console.log("PC: Manual Offer created and sent.");
-     } catch(e){
-         handleWebRTCError("Manual Offer creation failed.")
-     } finally {
-         makingOffer = false;
-     }
+    // This might still be useful for manual re-offers later, but the initial offer
+    // is now handled by onnegotiationneeded
+    if (!peerConnection || makingOffer || peerConnection.signalingState !== 'stable') { console.warn("PC: Cannot create manual offer now."); return; }
+    try {
+        makingOffer = true;
+        const offer = await peerConnection.createOffer();
+        if (peerConnection.signalingState !== 'stable') { return; }
+        await peerConnection.setLocalDescription(offer);
+        sendSignalingMessage({ type: 'offer', sdp: offer.sdp });
+        console.log("PC: Manual Offer created and sent.");
+    } catch (e) {
+        handleWebRTCError("Manual Offer creation failed.")
+    } finally {
+        makingOffer = false;
+    }
 }
 
 // ==================================================
@@ -522,8 +525,8 @@ function resetChatState() {
     // If localStream exists, ensure preview is shown again
     if (localStream && previewVideo) {
         if (!previewVideo.srcObject) {
-             previewVideo.srcObject = localStream; // Re-attach stream if needed
-             console.log("Restored preview stream after chat ended.");
+            previewVideo.srcObject = localStream; // Re-attach stream if needed
+            console.log("Restored preview stream after chat ended.");
         }
         updatePreviewStatus('', false); // Clear any error message
     } else if (!localStream && previewStatus) {
@@ -568,9 +571,9 @@ function setupSocketListeners() {
             // Media is ready. Enable button ONLY if user is currently idle.
             startChatButton.disabled = isLooking || currentPeerId;
             if (!startChatButton.disabled) {
-                 console.log("connection-success: Socket connected, media ready, user idle. Enabling Start button.");
+                console.log("connection-success: Socket connected, media ready, user idle. Enabling Start button.");
             } else {
-                 console.log("connection-success: Socket connected, media ready, but user is busy (looking/in chat). Start button remains disabled.");
+                console.log("connection-success: Socket connected, media ready, but user is busy (looking/in chat). Start button remains disabled.");
             }
         } else {
             // Media is not ready. Button must be disabled.
@@ -586,20 +589,20 @@ function setupSocketListeners() {
             console.log("connection-success: User is idle, ensuring UI is in idle state.");
             resetChatUI('idle'); // resetChatUI itself will check stream/socket status
         } else {
-             console.log(`connection-success: User is not idle (isLooking=${isLooking}, currentPeerId=${currentPeerId}), skipping idle UI reset.`);
-             // Ensure UI reflects current non-idle state on reconnect
-             if (isLooking) resetChatUI('searching');
-             else if (currentPeerId) resetChatUI('in-chat');
+            console.log(`connection-success: User is not idle (isLooking=${isLooking}, currentPeerId=${currentPeerId}), skipping idle UI reset.`);
+            // Ensure UI reflects current non-idle state on reconnect
+            if (isLooking) resetChatUI('searching');
+            else if (currentPeerId) resetChatUI('in-chat');
         }
     });
 
     socket.on('disconnect', (reason) => {
-         console.log(`Socket disconnect event received: ${reason}`);
-         updateSocketStatus(`Offline (${reason})`, 'var(--socket-status-error-color)');
-         startChatButton.disabled = true; // Disable start button on disconnect
-         // Reset state fully on unexpected disconnect
-         resetChatState();
-         socket = null; // Clear socket variable
+        console.log(`Socket disconnect event received: ${reason}`);
+        updateSocketStatus(`Offline (${reason})`, 'var(--socket-status-error-color)');
+        startChatButton.disabled = true; // Disable start button on disconnect
+        // Reset state fully on unexpected disconnect
+        resetChatState();
+        socket = null; // Clear socket variable
     });
 
     socket.on('connect_error', (err) => {
@@ -659,7 +662,7 @@ function setupSocketListeners() {
         console.log(`Chat end event received: ${reason}`);
         // Avoid alerting if the user initiated the end
         if (reason && !reason.toLowerCase().startsWith('you ')) {
-             alert(`Chat ended: ${reason}`);
+            alert(`Chat ended: ${reason}`);
         }
         resetChatState(); // Central place to reset after any chat end reason
     });
@@ -714,7 +717,8 @@ function disconnectWebSocket() { if (socket) { console.log("Disconnecting WebSoc
 async function handleRegister(event) {
     event.preventDefault(); clearStatusMessage(); const username = regUsernameInput.value.trim(); const password = regPasswordInput.value.trim(); const gender = regGenderSelect.value; const preference = regPreferenceSelect.value;
     if (!username || !password || !gender) { showStatusMessage('Fill username, password, gender.', true); return; } if (password.length < 6) { showStatusMessage('Password >= 6 chars.', true); return; }
-    try { showStatusMessage('Registering...', false); const response = await fetch(`${API_BASE_URL}/register`, { method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ username, password, gender, preference: preference || 'any' }), }); const data = await response.json(); if (!response.ok || !data.success) { throw new Error(data.message || `HTTP ${response.status}`); } showStatusMessage(data.message || 'Registered! Please log in.', false); registerForm.reset(); showView('login');
+    try {
+        showStatusMessage('Registering...', false); const response = await fetch(`${API_BASE_URL}/register`, { method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ username, password, gender, preference: preference || 'any' }), }); const data = await response.json(); if (!response.ok || !data.success) { throw new Error(data.message || `HTTP ${response.status}`); } showStatusMessage(data.message || 'Registered! Please log in.', false); registerForm.reset(); showView('login');
     } catch (error) { console.error('Reg fail:', error); showStatusMessage(`Reg fail: ${error.message}`, true); }
 }
 // --- Modified handleLogin to call startPreview ---
@@ -804,13 +808,76 @@ videoToggleButton?.addEventListener('click', toggleVideo);
 // 16. Initial Load << Calls setup functions defined above
 // ==================================================
 // --- DOMContentLoaded now calls async checkLoginStatus ---
+// app.js - Add near the top or inside DOMContentLoaded
+
+// --- Function to handle the OAuth callback ---
+function handleAuthCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const userParam = urlParams.get('user');
+    const error = urlParams.get('error');
+
+    console.log("Checking for Auth Callback Params:", { token, userParam, error });
+
+    if (error) {
+        console.error("OAuth Error received:", error);
+        showStatusMessage(`Google Authentication Failed: ${error}`, true);
+        // Clean the URL parameters
+        window.history.replaceState({}, document.title, window.location.pathname);
+        showView('login'); // Show login view on error
+        return; // Stop processing
+    }
+
+    if (token && userParam) {
+        console.log("OAuth Callback Success: Token and user data found.");
+        try {
+            const user = JSON.parse(userParam); // Parse user data
+
+            // Store data like regular login
+            storeLoginData(token, user);
+
+            // Clean the URL parameters from address bar (important!)
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            // --- Redirect to Logged-in View ---
+            showView('logged-in');
+            showUserInfo(user);
+            startPreview(); // Start camera preview
+            connectWebSocket(token); // Connect WebSocket
+
+            // Check if user needs to set gender/preference
+            if (user.gender === 'other' || !user.gender || !user.preference) {
+                // TODO: Implement UI indication or redirect to a profile setup page
+                setTimeout(() => { // Delay slightly
+                    showStatusMessage('Welcome! Please update your profile gender/preference if needed.', false);
+                    // Maybe highlight profile section or show a modal
+                }, 1000);
+            }
+
+        } catch (e) {
+            console.error("Error processing OAuth callback user data:", e);
+            showStatusMessage("Failed to process login data.", true);
+            // Clean the URL parameters
+            window.history.replaceState({}, document.title, window.location.pathname);
+            showView('login'); // Fallback to login
+        }
+    } else {
+        console.log("No OAuth callback parameters detected.");
+        // Proceed with normal login check if no callback params
+        checkLoginStatus(); // Your existing function
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-     console.log("DOM fully loaded and parsed.");
-     loadTheme();
-     checkLoginStatus(); // This now handles showing view, starting preview, connecting socket if logged in
-     // Initial button state (set disabled in HTML or ensure logic disables them until ready)
-     if(startChatButton) startChatButton.disabled = true;
-     if(muteButton) muteButton.disabled = true;
-     if(videoToggleButton) videoToggleButton.disabled = true;
-     console.log("Initial setup complete.");
+    console.log("DOM fully loaded and parsed.");
+    loadTheme();
+    // --- Call the callback handler INSTEAD of checkLoginStatus directly ---
+    handleAuthCallback();
+    // --- End Change ---
+
+    // Initial button state
+    if (startChatButton) startChatButton.disabled = true;
+    if (muteButton) muteButton.disabled = true;
+    if (videoToggleButton) videoToggleButton.disabled = true;
+    console.log("Initial setup complete.");
 });

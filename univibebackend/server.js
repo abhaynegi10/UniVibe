@@ -6,8 +6,17 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require("socket.io");
 const jwt = require('jsonwebtoken');
+
+// +++ ADD these lines +++
+const session = require('express-session'); // Import express-session
+const passport = require('passport'); // Import passport
+// +++ END ADD +++
 const User = require('./models/User'); // Assuming models/User.js exists
 const connectDB = require('./config/db'); // Assuming config/db.js exists
+// +++ ADD this line +++ (If not already importing routes separately)
+const authRoutes = require('./routes/auth'); // Import auth routes
+// +++ END ADD +++
+
 
 dotenv.config();
 connectDB();
@@ -15,22 +24,55 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
-const io = new Server(server, {
-    cors: {
-        origin: "*", // TODO: Restrict in production (e.g., process.env.FRONTEND_URL)
-        methods: ["GET", "POST"]
-    }
-});
+
 
 // --- Middleware ---
-app.use(cors()); // TODO: Configure CORS options for production
+// Replace your existing app.use(cors()); with this block:
+const corsOptions = {
+    // Allow your specific frontend origin(s)
+    origin: process.env.FRONTEND_URL || ["http://localhost:8080", "http://127.0.0.1:8080"],
+    methods: ["GET", "POST"],
+    credentials: true // Important for sessions/cookies if used later
+};
+app.use(cors(corsOptions));
+// --- END MODIFY CORS --- // TODO: Configure CORS options for production
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// +++ ADD Session and Passport Middleware HERE (Order Matters!) +++
+// --- Session Configuration (BEFORE Passport and API Routes) ---
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'fallback_super_secret_key_change_me', // Use env variable, provide a fallback
+    resave: false, // Don't save session if unmodified
+    saveUninitialized: false, // Don't create session until something stored
+    // Consider adding cookie settings for production (secure, httpOnly, sameSite)
+    // cookie: {
+    //    secure: process.env.NODE_ENV === 'production', // Requires HTTPS
+    //    httpOnly: true, // Prevent client-side JS access
+    //    sameSite: 'lax' // Adjust as needed ('strict', 'lax', 'none')
+    // }
+}));
+
+// --- Passport Middleware (AFTER Session) ---
+app.use(passport.initialize()); // Initialize Passport
+app.use(passport.session()); // Allow Passport to use express-session
+// +++ END ADD +++
+
+// +++ ADD Passport Configuration Loading HERE (AFTER Passport Middleware) +++
+// --- Passport Configuration (Import and Execute) ---
+// This line assumes you have created the 'config/passport.js' file
+require('./config/passport')(passport); // Pass the passport instance to your config file
+// +++ END ADD +++
+
 // --- In-memory store (Replace with Redis for production/scalability) ---
 const onlineUsers = {};
-
-// --- Socket.IO Authentication Middleware ---
+// --- Socket.IO Server Initialization ---
+const io = new Server(server, {
+    // MODIFY Socket.IO CORS to reuse the options from above
+    cors: corsOptions
+    // END MODIFY Socket.IO CORS
+});
+// --- Socket.IO Authentication Middleware (Keep as is) ---
 io.use(async (socket, next) => {
     const token = socket.handshake.auth.token;
     if (!token) { return next(new Error('Auth: No token')); }
@@ -197,7 +239,7 @@ function findPeerFor(userId) {
 
 // --- REST API Routes ---
 // Ensure you have routes/auth.js and controllers/authController.js setup from Step 1
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth', authRoutes);
 
 // Basic health check
 app.get('/', (req, res) => { res.status(200).json({ status: 'OK', online: Object.keys(onlineUsers).length }); }); // Added online count
