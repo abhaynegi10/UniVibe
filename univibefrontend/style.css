@@ -214,3 +214,61 @@ body:not(.dark-mode) #theme-toggle-button::before { content: '🌙'; }
 #preview-container.permission-failed video {
      display: none; /* Hide video element on failure */
 }
+
+
+/* --- Google Button Styling --- */
+.google-btn {
+    display: inline-flex; /* Use flexbox to align items inside */
+    align-items: center; /* Vertically center the icon and text */
+    justify-content: center; /* Horizontally center content */
+    padding: 8px 15px; /* Adjust padding to match your other buttons */
+    border: 1px solid var(--input-border-color); /* Example border */
+    border-radius: 4px; /* Match other buttons */
+    background-color: #fff; /* Google button background */
+    color: #444; /* Google button text color */
+    text-decoration: none;
+    font-size: 0.95rem; /* Adjust to match button text */
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    margin-top: 10px; /* Add some space above */
+    width: 100%; /* Make it full width like other buttons */
+    box-sizing: border-box; /* Include padding/border in width */
+}
+
+.google-btn:hover {
+    background-color: #f8f8f8;
+    border-color: #ccc;
+}
+
+/* Style for the Google icon image inside the button */
+.google-btn img {
+    height: 20px; /* Control the height of the icon */
+    width: auto; /* Let width adjust automatically */
+    margin-right: 10px; /* Add space between icon and text */
+}
+
+/* Optional: Style for the text span if needed */
+.google-btn span {
+    line-height: 1; /* Adjust line height if text alignment seems off */
+}
+
+/* Dark Mode Adjustments */
+body.dark-mode .google-btn {
+    background-color: #444; /* Darker background for dark mode */
+    border-color: #555;
+    color: #eee;
+}
+
+body.dark-mode .google-btn:hover {
+    background-color: #555;
+    border-color: #777;
+}
+
+/* Add a separator if desired */
+#login-section hr,
+#register-section hr {
+    border: none;
+    border-top: 1px solid var(--input-border-color);
+    margin: 20px 0; /* Add space around the horizontal rule */
+}
