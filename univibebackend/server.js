@@ -118,9 +118,54 @@ io.on('connection', (socket) => {
     socket.on('stop-looking', () => handleStopLooking(socket));
     socket.on('skip', () => handleSkip(socket));
     socket.on('webrtc-signal', (data) => handleWebRTCSignal(socket, data));
+   
+    // +++ ADD Handler for Text Messages HERE +++
+    socket.on('send-message', ({ toId, message }) => {
+        const senderId = socket.userId;
+        const recipient = onlineUsers[toId]; // Find recipient in our store
+
+        console.log(`[MsgRelay] User ${senderId} attempting to send message to ${toId}`);
+
+        // Basic validation: Check if recipient exists in our online list
+        if (!recipient) {
+            console.warn(`[MsgRelay] Recipient ${toId} not found in onlineUsers.`);
+            // Optional: Notify sender the user is offline
+            // socket.emit('error-occurred', { message: 'Could not send message: User is offline.' });
+            return;
+        }
+
+        // Security/State Check: Ensure sender and recipient are actually paired according to server state
+        const senderUser = onlineUsers[senderId];
+        if (!senderUser || senderUser.currentPeerId !== toId || recipient.currentPeerId !== senderId) {
+             console.warn(`[MsgRelay] Message attempt between users not currently peered by server: ${senderId} -> ${toId}. Current peers: Sender=${senderUser?.currentPeerId}, Recipient=${recipient.currentPeerId}`);
+             // Optional: Notify sender they aren't connected
+             // socket.emit('error-occurred', { message: 'Cannot send message: Not connected to this user.' });
+             return;
+        }
+
+        // Find the specific socket instance for the recipient
+        const recipientSocket = io.sockets.sockets.get(recipient.socketId);
+        if (recipientSocket) {
+            // Relay the message ONLY to the recipient's socket
+            console.log(`[MsgRelay] Relaying message from ${senderId} (Socket: ${socket.id}) to ${toId} (Socket: ${recipient.socketId})`);
+            recipientSocket.emit('receive-message', {
+                fromId: senderId, // Tell the recipient who it's from
+                message: message   // The actual message content
+            });
+        } else {
+            // This might happen if the recipient disconnected just moments ago
+            console.warn(`[MsgRelay] Socket instance for recipient ${toId} (ID: ${recipient.socketId}) not found, though user is in onlineUsers list.`);
+        }
+    });
+    // +++ END ADD +++
+
+
+
+
+
     socket.on('disconnect', (reason) => handleDisconnect(socket, reason));
 
-}); // End io.on('connection')
+});
 
 // --- Event Handler Functions ---
 function handleStartLooking(socket) {

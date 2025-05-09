@@ -14,6 +14,7 @@ let peerConnection = null;
 let isWebRTCInitiator = false;
 // === Add a new global flag ===
 let makingOffer = false; // Flag to prevent duplicate offer creation
+let isChatVisible = false; // <-- ADD THIS LINE
 
 const pcConfig = {
     iceServers: [
@@ -63,6 +64,12 @@ const remoteVideo = document.getElementById('remoteVideo');
 const chatControlsBar = document.getElementById('chat-controls');
 const muteButton = document.getElementById('mute-button');
 const videoToggleButton = document.getElementById('video-toggle-button');
+// --- Add Chat Elements ---
+const toggleChatButton = document.getElementById('toggle-chat-btn');    // <-- ADD
+const textChatArea = document.getElementById('text-chat-area');      // <-- ADD
+const messageList = document.getElementById('message-list');         // <-- ADD
+const chatInput = document.getElementById('chat-input');           // <-- ADD
+const sendMessageButton = document.getElementById('send-message-btn'); // <-- ADD
 
 // ==================================================
 // Helper function to update preview status message
@@ -169,6 +176,35 @@ function resetChatUI(mode = 'idle') {
             break;
     }
 }
+// --- Add Message Display Function ---
+function displayMessage(message, isLocal) { // <-- ADD THIS FUNCTION
+    if (!messageList) return;
+    const msgElement = document.createElement('p');
+    msgElement.textContent = message;
+    msgElement.classList.add(isLocal ? 'local-message' : 'remote-message');
+    messageList.appendChild(msgElement);
+    // Scroll to the bottom
+    messageList.scrollTop = messageList.scrollHeight;
+}
+
+// ==================================================
+// 5.1 Chat UI Functions (NEW SECTION)
+// ==================================================
+function toggleChatArea() { // <-- ADD THIS FUNCTION
+    isChatVisible = !isChatVisible;
+    if (textChatArea) {
+        textChatArea.classList.toggle('chat-visible', isChatVisible);
+    }
+    if (toggleChatButton) {
+        toggleChatButton.classList.toggle('chat-active', isChatVisible);
+        toggleChatButton.title = isChatVisible ? "Hide Text Chat" : "Show Text Chat";
+    }
+    if(isChatVisible) {
+        chatInput?.focus(); // Focus input when opening chat
+    }
+    console.log(`Chat toggled. Visible: ${isChatVisible}`);
+}
+
 
 // ==================================================
 // 6. Media Controls & Permissions
@@ -631,6 +667,17 @@ function setupSocketListeners() {
         updateChatStatus('Waiting for partner...');
         resetChatUI('searching');
     });
+     // --- Add Listener for Incoming Messages (Server Relay Method) ---
+     socket.on('receive-message', ({ fromId, message }) => { // <-- ADD THIS LISTENER
+        // Ensure the message is from the current peer
+        if (fromId === currentPeerId) {
+            console.log(`Received message: "${message}" from ${fromId}`);
+            displayMessage(message, false); // false means it's a remote message
+        } else {
+            console.warn(`Received message from unexpected peer: ${fromId}`);
+        }
+    });
+    // --------------------------------------------------------------
 
     socket.on('match-found', ({ peerId, initiator }) => {
         // --- Add the console error log here for visibility ---
@@ -789,6 +836,24 @@ function handleLogout() {
     showView('login');
     showStatusMessage('Logged out.', false);
 }
+// --- Add Text Chat Send Function ---
+function sendMessage() { // <-- ADD THIS FUNCTION
+    if (!chatInput || !socket || !currentPeerId) return;
+    const message = chatInput.value.trim();
+
+    if (message) {
+        console.log(`Sending message: "${message}" to ${currentPeerId}`);
+        displayMessage(message, true); // Display locally
+
+        // Send message via Server Relay
+        socket.emit('send-message', {
+            toId: currentPeerId,
+            message: message
+        });
+
+        chatInput.value = ''; // Clear input field
+    }
+}
 
 // ==================================================
 // 15. Attach Event Listeners << Assigns handlers defined above
@@ -803,6 +868,15 @@ skipButton?.addEventListener('click', handleSkipOrStop);
 themeToggleButton?.addEventListener('click', toggleTheme);
 muteButton?.addEventListener('click', toggleAudio);
 videoToggleButton?.addEventListener('click', toggleVideo);
+// --- Add Chat Event Listeners ---
+toggleChatButton?.addEventListener('click', toggleChatArea);     // <-- ADD
+sendMessageButton?.addEventListener('click', sendMessage);        // <-- ADD
+chatInput?.addEventListener('keydown', (event) => {             // <-- ADD
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+});
 
 // ==================================================
 // 16. Initial Load << Calls setup functions defined above

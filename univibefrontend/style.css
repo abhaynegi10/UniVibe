@@ -132,7 +132,7 @@ video { display: block; width: 100%; height: 100%; object-fit: cover; background
 /* Hide Auth/Idle view when Chat is Active */
 body.in-chat #auth-container, body.in-chat #logged-in-view { display: none; }
 
-/* --- Chat Controls Bar --- */
+/* --- Chat Controls Bar --- 
 #chat-controls { display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background-color: var(--card-bg-color); box-shadow: 0 -2px 5px var(--shadow-color); padding: 0 20px; box-sizing: border-box; flex-direction: row; justify-content: center; align-items: center; gap: 15px; z-index: 20; }
 body.in-chat #chat-controls { display: flex; }
 
@@ -151,6 +151,146 @@ body.in-chat #chat-controls { display: flex; }
 #mute-button.muted::before { content: '🔇'; }
 #video-toggle-button::before { content: '📷'; }
 #video-toggle-button.video-off::before { content: '🚫'; }
+*/
+
+/* --- Chat Controls Bar --- */
+#chat-controls {
+    display: none; /* Hidden by default */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px; /* Default height */
+    background-color: var(--card-bg-color);
+    box-shadow: 0 -2px 5px var(--shadow-color);
+    padding: 0 20px; /* Horizontal padding */
+    box-sizing: border-box; /* Include padding in width */
+    /* Use flexbox for alignment */
+    display: flex; /* Changed default to flex, but visibility controlled by body.in-chat */
+    flex-direction: row;
+    justify-content: center; /* Center items horizontally */
+    align-items: center; /* Center items vertically */
+    gap: 15px; /* Spacing between buttons */
+    z-index: 20; /* Make sure it's above video, potentially below chat popup when open */
+    transition: height 0.3s ease; /* Smooth height transitions for responsiveness */
+}
+
+/* Show controls only when body has 'in-chat' class */
+body.in-chat #chat-controls {
+    display: flex;
+}
+
+/* Default styling for ALL buttons within the control bar */
+#chat-controls button {
+    width: 50px; /* Standard width */
+    height: 50px; /* Standard height */
+    font-size: 0; /* Hide button text if using ::before for icon */
+    padding: 0;
+    margin: 0;
+    display: flex; /* Center icon inside */
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%; /* Circular buttons */
+    color: var(--text-color);
+    background-color: var(--button-control-bg);
+    border: 1px solid var(--button-control-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* Prevent buttons from shrinking if space is tight */
+}
+
+/* Icon styling using ::before */
+#chat-controls button::before {
+    font-size: 20px; /* Icon size */
+    vertical-align: middle;
+    display: inline-block;
+    line-height: 1; /* Ensure proper vertical alignment */
+}
+
+/* Hover effect for enabled buttons */
+#chat-controls button:hover:not(:disabled) {
+    border-color: var(--text-color);
+    background-color: var(--button-control-hover-bg);
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+/* Active (pressed) effect for enabled buttons */
+#chat-controls button:active:not(:disabled) {
+    transform: translateY(0); /* Reset lift */
+}
+
+/* Disabled state */
+#chat-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important; /* Prevent hover/active transforms */
+    background-color: var(--button-control-bg); /* Ensure background doesn't stay colored */
+    border-color: var(--button-control-border);
+    color: var(--text-color); /* Reset color */
+}
+
+/* Specific styling for the Skip button (less rounded, wider) */
+#skip-button {
+    width: auto; /* Allow width to fit content */
+    padding: 10px 25px; /* More horizontal padding */
+    font-size: 0.9rem; /* Show text */
+    border-radius: 25px; /* Pill shape */
+    background-color: var(--button-secondary-bg);
+    color: white;
+    border: none; /* Override default border */
+    font-weight: 500;
+}
+#skip-button:hover:not(:disabled) { /* Hover for skip button */
+    background-color: var(--button-secondary-hover-bg);
+    border: none;
+    transform: translateY(-2px);
+}
+#skip-button::before {
+    content: none; /* Skip button doesn't use ::before for icon */
+    display: none;
+}
+
+
+/* Specific styling for Mute/Video buttons when ACTIVE (muted/off) */
+#mute-button.muted,
+#video-toggle-button.video-off {
+    background-color: var(--button-control-active-bg); /* Red background */
+    color: white; /* White icon */
+    border-color: transparent;
+}
+/* Hover for active Mute/Video */
+#mute-button.muted:hover:not(:disabled),
+#video-toggle-button.video-off:hover:not(:disabled) {
+    background-color: var(--button-danger-hover-bg); /* Darker red */
+    border-color: transparent;
+}
+
+/* Icons for Mute/Video buttons */
+#mute-button::before { content: '🎤'; }
+#mute-button.muted::before { content: '🔇'; }
+#video-toggle-button::before { content: '📷'; }
+#video-toggle-button.video-off::before { content: '🚫'; }
+
+
+/* --- NEW: Chat Toggle Button Styling --- */
+#toggle-chat-btn::before {
+    content: '💬'; /* Default chat icon */
+}
+
+/* Style when chat area is visible */
+#toggle-chat-btn.chat-active {
+    background-color: var(--button-secondary-bg); /* Use a distinct color */
+    color: white;
+    border-color: transparent;
+}
+#toggle-chat-btn.chat-active::before {
+    content: '🗯️'; /* Different icon maybe? Optional */
+}
+#toggle-chat-btn.chat-active:hover:not(:disabled) {
+     background-color: var(--button-secondary-hover-bg);
+     border-color: transparent;
+}
+/* --- END NEW --- */
 
 /* --- Theme Toggle Button --- */
 .theme-switch-wrapper { position: absolute; top: 15px; right: 20px; z-index: 100; }
@@ -271,4 +411,94 @@ body.dark-mode .google-btn:hover {
     border: none;
     border-top: 1px solid var(--input-border-color);
     margin: 20px 0; /* Add space around the horizontal rule */
+}
+
+
+/* --- Text Chat Area Styling --- */
+#text-chat-area {
+    position: fixed; /* Position relative to the viewport */
+    bottom: 70px; /* Position it ABOVE the #chat-controls bar (adjust if bar height is different) */
+    left: 0;
+    width: 100%;
+    height: 250px; /* Set a height for the chat area */
+    max-height: 40vh; /* Limit height relative to viewport height */
+    background-color: var(--card-bg-color);
+    box-shadow: 0 -2px 5px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease-in-out; /* Add transition for smooth slide */
+    z-index: 15; /* Below controls (20) but above video (10) */
+
+    /* Start hidden below the screen */
+    transform: translateY(100%);
+}
+
+#text-chat-area.chat-visible {
+    /* Slide into view */
+    transform: translateY(0);
+}
+
+#message-list {
+    flex-grow: 1; /* Take up available vertical space */
+    overflow-y: auto; /* Allow scrolling for messages */
+    padding: 10px;
+    border-bottom: 1px solid var(--input-border-color); /* Separator */
+}
+
+/* Individual message styling */
+#message-list p {
+    margin: 5px 0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    max-width: 80%;
+    word-wrap: break-word; /* Wrap long words */
+    line-height: 1.4; /* Improve readability */
+    text-align: left; /* Align text left */
+}
+
+#message-list p.local-message { /* Message sent by you */
+    background-color: var(--button-secondary-bg);
+    color: white;
+    margin-left: auto; /* Align right */
+    text-align: right;
+}
+
+#message-list p.remote-message { /* Message received from stranger */
+    background-color: var(--button-control-bg);
+    color: var(--text-color);
+    margin-right: auto; /* Align left */
+}
+
+#chat-input-area {
+    display: flex;
+    padding: 8px;
+    background-color: var(--bg-color); /* Slightly different background */
+}
+
+#chat-input {
+    flex-grow: 1; /* Take available horizontal space */
+    padding: 8px 10px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 4px;
+    margin-right: 8px;
+    font-size: 0.9rem;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+}
+
+#send-message-btn {
+    padding: 8px 15px;
+    border: none;
+    background-color: var(--button-primary-bg);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+#send-message-btn:hover {
+    background-color: var(--button-primary-hover-bg);
 }

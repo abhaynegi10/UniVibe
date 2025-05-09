@@ -89,30 +89,42 @@
 
 
     <!-- VIDEO CHAT VIEW -->
-    <div id="video-chat-container"> <!-- Start hidden -->
+    <div id="video-chat-container"> <!-- style="display: none;" should be removed here -->
         <div id="videos">
             <div class="video-wrapper">
                 <video id="localVideo" autoplay muted playsinline></video>
                 <span class="video-label">You</span>
             </div>
             <div class="video-wrapper">
-                <video id="remoteVideo" autoplay playsinline></video>
-                <span class="video-label">Stranger</span>
+                 <video id="remoteVideo" autoplay playsinline></video>
+                 <span class="video-label">Stranger</span>
             </div>
-        </div>
-        <!-- Chat Controls Bar is positioned fixed at bottom via CSS -->
+       </div>
+
+       <!-- START: Added Text Chat Area (Initially Hidden) -->
+       <div id="text-chat-area" class="chat-hidden">
+            <div id="message-list">
+                <!-- Messages will be added here by JavaScript -->
+            </div>
+            <div id="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Type your message...">
+                <button id="send-message-btn">Send</button>
+            </div>
+       </div>
+       <!-- END: Added Text Chat Area -->
+
     </div>
 
 
     <!-- CHAT CONTROLS BAR -->
-    <div id="chat-controls" style="display: none;"> <!-- Start hidden -->
+     <!-- This container should ALREADY exist -->
+     <div id="chat-controls"> <!-- style="display: none;" removed if controlled by body.in-chat -->
         <button id="mute-button" title="Mute/Unmute Audio">🎤</button>
         <button id="video-toggle-button" title="Turn Camera On/Off">📷</button>
-        <button id="skip-button">Skip</button>
-        <!-- Text Chat Elements Placeholder
-         <input type="text" id="chat-input" placeholder="Type message...">
-         <button id="send-message-button">Send</button>
-         -->
+        <!-- START: Add Chat Toggle Button -->
+        <button id="toggle-chat-btn" title="Toggle Text Chat">💬</button> <!-- New Button -->
+        <!-- END: Add Chat Toggle Button -->
+        <button id="skip-button">Skip</button> <!-- Keep existing skip button -->
     </div>
 
 
