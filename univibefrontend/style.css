@@ -166,7 +166,7 @@ body.in-chat #chat-controls { display: flex; }
     padding: 0 20px; /* Horizontal padding */
     box-sizing: border-box; /* Include padding in width */
     /* Use flexbox for alignment */
-    display: flex; /* Changed default to flex, but visibility controlled by body.in-chat */
+   /* display: flex;  Changed default to flex, but visibility controlled by body.in-chat */
     flex-direction: row;
     justify-content: center; /* Center items horizontally */
     align-items: center; /* Center items vertically */

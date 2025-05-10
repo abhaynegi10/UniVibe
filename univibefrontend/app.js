@@ -128,25 +128,22 @@ function showView(viewName) {
     console.log(`>>> showView called with: ${viewName}`);
 
     // --- Hide/Show Auth vs LoggedIn containers ---
-    authContainer.style.display = viewName === 'login' || viewName === 'register' ? 'block' : 'none';
-    loggedInView.style.display = viewName === 'logged-in' ? 'block' : 'none';
+   if(authContainer) authContainer.style.display = viewName === 'login' || viewName === 'register' ? 'block' : 'none';
+   if(loggedInView) loggedInView.style.display = viewName === 'logged-in' ? 'block' : 'none';
 
     // --- Manage body class for video/controls visibility ---
      if (viewName === 'in-chat') {
         // Explicitly in a video chat session
-        console.log("showView ('in-chat'): ADDING 'in-chat' class to body. Element:", bodyElement);
+        console.log("showView ('in-chat'): ADDING 'in-chat' class to body.");
         bodyElement.classList.add('in-chat');
         console.log("showView ('in-chat'): ClassList after attempting add:", bodyElement.classList);
     } else {
         // For all other views (login, register, logged-in/idle)
         // The 'in-chat' class might be present if the user is 'searching' (to show controls)
         // Only remove 'in-chat' if NOT searching. resetChatUI('idle') handles removal too.
-        if (!isLooking) { // If not searching AND not 'in-chat' view
-            console.log("showView (not 'in-chat' & not searching): REMOVING 'in-chat' class. Current:", bodyElement.classList);
-            bodyElement.classList.remove('in-chat');
-        } else {
-            console.log("showView (not 'in-chat' BUT isLooking=true): Keeping 'in-chat' class for searching controls.");
-        }
+      console.log(`showView ('${viewName}'): REMOVING 'in-chat' class from body. Current:`, bodyElement.classList);
+        bodyElement.classList.remove('in-chat');
+        console.log("showView ('various'): ClassList after remove:", bodyElement.classList);
     }
 
     // --- Handle specific auth view visibility (Login vs Register) ---
@@ -198,11 +195,11 @@ function resetChatUI(mode = 'idle') {
                 skipButton.textContent = "Skip";
             }
             updateMediaButtonsState(!!localStream);
-            // --- MODIFICATION: Ensure 'in-chat' class is present (showView usually handles this too) ---
-            if (!bodyElement.classList.contains('in-chat')) {
-                bodyElement.classList.add('in-chat');
-                console.log("resetChatUI ('in-chat'): Added 'in-chat' class to body (was missing).");
-            }
+            // --- REMOVE THE MODIFICATION THAT ADDS 'in-chat' ---
+            // The 'in-chat' class on the body is now solely managed by showView().
+            // This function (resetChatUI) assumes that when mode is 'in-chat',
+            // showView('in-chat') has already made the #chat-controls bar visible.
+            console.log("resetChatUI ('in-chat'): UI elements configured for in-chat state.");
             break;
 
         case 'idle':
