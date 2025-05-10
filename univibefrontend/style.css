@@ -184,8 +184,9 @@ body.in-chat #chat-controls {
 #chat-controls button {
     width: 50px; /* Standard width */
     height: 50px; /* Standard height */
-    font-size: 0; /* Hide button text if using ::before for icon */
-    padding: 0;
+   /* font-size: 0; /* Hide button text if using ::before for icon */
+   font-size: 0.9rem; 
+   padding: 0;
     margin: 0;
     display: flex; /* Center icon inside */
     justify-content: center;
@@ -200,11 +201,11 @@ body.in-chat #chat-controls {
 }
 
 /* Icon styling using ::before */
-#chat-controls button::before {
-    font-size: 20px; /* Icon size */
+#chat-controls button:not(#skip-button)::before {
+    font-size: 20px;
     vertical-align: middle;
     display: inline-block;
-    line-height: 1; /* Ensure proper vertical alignment */
+    line-height: 1;
 }
 
 /* Hover effect for enabled buttons */
@@ -233,7 +234,7 @@ body.in-chat #chat-controls {
 #skip-button {
     width: auto; /* Allow width to fit content */
     padding: 10px 25px; /* More horizontal padding */
-    font-size: 0.9rem; /* Show text */
+    /*font-size: 0.9rem; /* Show text */
     border-radius: 25px; /* Pill shape */
     background-color: var(--button-secondary-bg);
     color: white;
@@ -246,8 +247,8 @@ body.in-chat #chat-controls {
     transform: translateY(-2px);
 }
 #skip-button::before {
-    content: none; /* Skip button doesn't use ::before for icon */
-    display: none;
+    content: none !important; /* Force no icon content */
+    display: none !important; /* Force no display for the pseudo-element */
 }
 
 

@@ -132,16 +132,21 @@ function showView(viewName) {
     loggedInView.style.display = viewName === 'logged-in' ? 'block' : 'none';
 
     // --- Manage body class for video/controls visibility ---
-    if (viewName !== 'in-chat') {
-        // --- Debug Log: Removing class ---
-        console.log("Removing 'in-chat' class from body (if present). Current classes:", bodyElement.classList);
-        bodyElement.classList.remove('in-chat');
-    } else {
-        // --- Debug Log: Adding class ---
-        console.log("!!! Attempting to ADD 'in-chat' class to body !!! Element:", bodyElement);
+     if (viewName === 'in-chat') {
+        // Explicitly in a video chat session
+        console.log("showView ('in-chat'): ADDING 'in-chat' class to body. Element:", bodyElement);
         bodyElement.classList.add('in-chat');
-        // --- Debug Log: Verify classList after adding ---
-        console.log("!!! ClassList after attempting add:", bodyElement.classList);
+        console.log("showView ('in-chat'): ClassList after attempting add:", bodyElement.classList);
+    } else {
+        // For all other views (login, register, logged-in/idle)
+        // The 'in-chat' class might be present if the user is 'searching' (to show controls)
+        // Only remove 'in-chat' if NOT searching. resetChatUI('idle') handles removal too.
+        if (!isLooking) { // If not searching AND not 'in-chat' view
+            console.log("showView (not 'in-chat' & not searching): REMOVING 'in-chat' class. Current:", bodyElement.classList);
+            bodyElement.classList.remove('in-chat');
+        } else {
+            console.log("showView (not 'in-chat' BUT isLooking=true): Keeping 'in-chat' class for searching controls.");
+        }
     }
 
     // --- Handle specific auth view visibility (Login vs Register) ---
@@ -154,6 +159,7 @@ function showView(viewName) {
         if (loginSection) loginSection.style.display = 'block';
     }
 }
+
 function showUserInfo(user) { loggedInUsernameSpan.textContent = user.username; loggedInGenderSpan.textContent = user.gender; loggedInPreferenceSpan.textContent = user.preference; }
 
 function showStatusMessage(message, isError = false) {
@@ -164,15 +170,52 @@ function clearStatusMessage() { statusMessageDiv.className = 'status'; }
 
 function resetChatUI(mode = 'idle') {
     console.log(`Resetting UI to mode: ${mode}, Socket Connected: ${socket?.connected}, Has Stream: ${!!localStream}`);
+
+    // Default: Remove 'in-chat' class unless specifically in 'searching' or 'in-chat' mode
+    // This simplifies ensuring it's removed when going to 'idle'
+    if (mode !== 'searching' && mode !== 'in-chat') {
+        bodyElement.classList.remove('in-chat');
+        console.log("resetChatUI: Removed 'in-chat' class from body.");
+    }
+
     switch (mode) {
-        case 'searching': startChatButton.style.display = 'none'; skipButton.style.display = 'inline-block'; skipButton.textContent = "Stop Searching"; updateMediaButtonsState(!!localStream); break;
-        case 'in-chat': startChatButton.style.display = 'none'; skipButton.style.display = 'inline-block'; skipButton.textContent = "Skip"; updateMediaButtonsState(!!localStream); break;
-        case 'idle': default:
-            startChatButton.style.display = 'inline-block';
-            skipButton.style.display = 'none';
-            // Start button enabled only if socket is connected AND media stream exists
-            startChatButton.disabled = !(socket && socket.connected && localStream);
+        case 'searching':
+            if (startChatButton) startChatButton.style.display = 'none';
+            if (skipButton) {
+                skipButton.style.display = 'inline-block';
+                skipButton.textContent = "Stop Searching";
+            }
             updateMediaButtonsState(!!localStream);
+            // --- MODIFICATION: Add 'in-chat' class to show controls bar ---
+            bodyElement.classList.add('in-chat');
+            console.log("resetChatUI ('searching'): Added 'in-chat' class to body.");
+            break;
+
+        case 'in-chat':
+            if (startChatButton) startChatButton.style.display = 'none';
+            if (skipButton) {
+                skipButton.style.display = 'inline-block';
+                skipButton.textContent = "Skip";
+            }
+            updateMediaButtonsState(!!localStream);
+            // --- MODIFICATION: Ensure 'in-chat' class is present (showView usually handles this too) ---
+            if (!bodyElement.classList.contains('in-chat')) {
+                bodyElement.classList.add('in-chat');
+                console.log("resetChatUI ('in-chat'): Added 'in-chat' class to body (was missing).");
+            }
+            break;
+
+        case 'idle':
+        default:
+            if (startChatButton) {
+                startChatButton.style.display = 'inline-block';
+                // Start button enabled only if socket is connected AND media stream exists
+                startChatButton.disabled = !(socket && socket.connected && localStream);
+            }
+            if (skipButton) skipButton.style.display = 'none';
+            updateMediaButtonsState(!!localStream);
+            // 'in-chat' class is removed by the check at the top of the function
+            console.log("resetChatUI ('idle'): UI set to idle, 'in-chat' class should be removed.");
             break;
     }
 }
