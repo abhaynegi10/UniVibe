@@ -2,9 +2,9 @@ services:
   - type: web
     name: univibe
     runtime: node
-    rootDir: .             # Deploy the whole repo so univibefrontend/ is available
-    buildCommand: npm install --prefix univibebackend
-    startCommand: node univibebackend/server.js
+    rootDir: univibebackend
+    buildCommand: npm install
+    startCommand: node server.js
     plan: free
     envVars:
       - key: NODE_ENV

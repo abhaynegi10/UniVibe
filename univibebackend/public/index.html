@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniVibe — Meet Someone Real</title>
+    <meta name="description" content="Random video chat for real conversations. Meet someone new, anonymously.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+
+<body>
+
+    <!-- ─── THEME TOGGLE (always visible, fixed) ─────────────────────── -->
+    <div class="theme-switch-wrapper">
+        <button id="theme-toggle-button" title="Toggle theme"></button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SCREEN 1 — AUTH (Login / Register)
+         ═══════════════════════════════════════════════════════════════ -->
+    <div id="auth-container">
+
+        <!-- Left: editorial hero -->
+        <div class="auth-hero">
+            <div class="auth-hero__top">
+                <span class="wordmark">UNIVIBE</span>
+            </div>
+
+            <div class="auth-hero__body">
+                <div class="auth-hero__headline">
+                    <span class="hl-line">Meet</span>
+                    <span class="hl-line">Someone</span>
+                    <span class="hl-line hl-accent">Real.</span>
+                </div>
+                <p class="auth-hero__sub">
+                    A stranger is just someone you haven't talked to yet.
+                    Video chat, for real conversations.
+                </p>
+                <div class="live-counter">
+                    <span class="live-dot"></span>
+                    <span class="live-counter__text" id="auth-online-count">— people online right now</span>
+                </div>
+            </div>
+
+            <div class="auth-hero__footer">
+                <hr class="ink-rule">
+                <div class="footnotes">
+                    <span>UNIVIBE PROTOCOL v2.1</span>
+                    <span>ANONYMOUS BY DESIGN</span>
+                    <span>NO RECORDINGS</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: auth panel -->
+        <div class="auth-panel">
+
+            <!-- Tab navigation (uses existing show-login / show-register IDs) -->
+            <div class="auth-tabs">
+                <a href="#" id="show-register" class="auth-tab active">Create account</a>
+                <a href="#" id="show-login" class="auth-tab">Sign in</a>
+            </div>
+
+            <!-- ── Register form ── -->
+            <div id="register-section" class="auth-form-section">
+                <form id="register-form" novalidate>
+                    <div class="field-group">
+                        <label class="field-label" for="reg-username">USERNAME</label>
+                        <input type="text" id="reg-username" class="field-input" placeholder="your_handle" required autocomplete="off">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="reg-password">PASSWORD</label>
+                        <input type="password" id="reg-password" class="field-input" placeholder="min. 6 characters" required minlength="6">
+                    </div>
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label class="field-label" for="reg-gender">YOUR GENDER</label>
+                            <select id="reg-gender" class="field-input field-select" required>
+                                <option value="" disabled selected>Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="reg-preference">SHOW ME</label>
+                            <select id="reg-preference" class="field-input field-select">
+                                <option value="any" selected>Anyone</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full">Create Account</button>
+                </form>
+
+                <div class="auth-divider"><span>or</span></div>
+
+                <a href="/api/auth/google" class="btn btn--google btn--full" id="google-signup-btn">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Continue with Google
+                </a>
+            </div>
+
+            <!-- ── Login form ── -->
+            <div id="login-section" class="auth-form-section" style="display:none">
+                <form id="login-form" novalidate>
+                    <div class="field-group">
+                        <label class="field-label" for="login-username">USERNAME</label>
+                        <input type="text" id="login-username" class="field-input" placeholder="your_handle" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="login-password">PASSWORD</label>
+                        <input type="password" id="login-password" class="field-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full">Sign In</button>
+                </form>
+
+                <div class="auth-divider"><span>or</span></div>
+
+                <a href="/api/auth/google" class="btn btn--google btn--full" id="google-login-btn">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Continue with Google
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SCREEN 2 — IDLE DASHBOARD (logged in)
+         ═══════════════════════════════════════════════════════════════ -->
+    <div id="logged-in-view" style="display:none">
+
+        <!-- Navigation bar -->
+        <nav class="dash-nav">
+            <span class="wordmark">UNIVIBE</span>
+
+            <div class="dash-nav__status">
+                <span class="live-dot"></span>
+                <span id="socket-status" class="dash-nav__status-text">Connecting...</span>
+            </div>
+
+            <div class="dash-nav__user">
+                <span class="user-chip">
+                    <span class="user-chip__at">@</span><span id="logged-in-username"></span>
+                </span>
+                <button id="logout-button" class="btn btn--ghost btn--sm">Log out</button>
+            </div>
+        </nav>
+
+        <!-- Body: 2-column layout -->
+        <div class="dash-body">
+
+            <!-- Left: camera + action -->
+            <div class="dash-main">
+                <div class="dash-main__header">
+                    <h1>Ready<span class="text-ember">?</span></h1>
+                    <p id="chat-status" class="dash-main__sub">Your camera is live. Pick who you'd like to meet.</p>
+                </div>
+
+                <div id="user-info-box">
+                    <!-- Camera preview -->
+                    <div id="preview-container" class="preview-frame">
+                        <span class="preview-frame__label">YOU</span>
+                        <video id="previewVideo" autoplay muted playsinline></video>
+                        <p id="preview-status" class="preview-message">Checking camera...</p>
+                    </div>
+
+                    <!-- Status chips -->
+                    <div class="media-chips">
+                        <span class="media-chip" id="cam-chip">📷 CAM</span>
+                        <span class="media-chip" id="mic-chip">🎤 MIC</span>
+                        <span class="media-chip meta-chip">
+                            <span class="meta-key">GENDER</span>
+                            <span id="logged-in-gender" class="meta-val">—</span>
+                        </span>
+                        <span class="media-chip meta-chip">
+                            <span class="meta-key">SHOW</span>
+                            <span id="logged-in-preference" class="meta-val">—</span>
+                        </span>
+                    </div>
+
+                    <!-- Start button -->
+                    <button id="start-chat-button" class="btn btn--primary btn--full btn--lg" disabled>
+                        Start Chatting →
+                    </button>
+                </div>
+
+                <hr class="ink-rule rooms-divider">
+
+                <!-- ── Rooms Section ────────────────────────────── -->
+                <div class="rooms-section" id="rooms-section">
+                    <div class="rooms-section__head">
+                        <span>Rooms</span>
+                        <div class="head-rule"></div>
+                        <span class="rooms-badge">PRIVATE 1-to-1</span>
+                    </div>
+
+                    <!-- Default state: create or join -->
+                    <div id="room-default-state" class="room-state">
+                        <button id="create-room-btn" class="btn btn--outline btn--full">
+                            + Create a Room
+                        </button>
+                        <div class="auth-divider"><span>or join one</span></div>
+                        <div class="room-join-row">
+                            <input type="text" id="room-code-input" class="field-input room-code-field"
+                                   placeholder="ABC123" maxlength="6" autocomplete="off" spellcheck="false">
+                            <button id="join-room-btn" class="btn btn--primary">Join →</button>
+                        </div>
+                    </div>
+
+                    <!-- Waiting state: after creating a room -->
+                    <div id="room-waiting-state" class="room-state" style="display:none">
+                        <div class="room-code-display">
+                            <label class="field-label">YOUR ROOM CODE</label>
+                            <div class="room-code-chip">
+                                <span id="room-code-value" class="room-code-num">——————</span>
+                                <button id="copy-room-link-btn" class="btn btn--ghost btn--sm">Copy Link</button>
+                            </div>
+                        </div>
+                        <div class="room-waiting-row">
+                            <span class="live-dot"></span>
+                            <span id="room-waiting-text" class="room-waiting-label">Waiting for someone to join...</span>
+                        </div>
+                        <button id="cancel-room-btn" class="btn btn--outline btn--sm">Cancel Room</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: sidebar -->
+            <div class="dash-sidebar">
+
+                <div class="sidebar-block">
+                    <div class="sidebar-block__head">
+                        <span>Preferences</span>
+                        <div class="head-rule"></div>
+                    </div>
+                    <div class="pref-group">
+                        <label class="field-label">SHOW ME</label>
+                        <div class="toggle-group" id="pref-toggle-group">
+                            <button class="toggle-btn active" data-value="any">Any</button>
+                            <button class="toggle-btn" data-value="male">Male</button>
+                            <button class="toggle-btn" data-value="female">Female</button>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="ink-rule">
+
+                <div class="sidebar-block">
+                    <div class="sidebar-block__head">
+                        <span>Activity</span>
+                        <div class="head-rule"></div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat">
+                            <span class="stat__num" id="stat-count">1,247</span>
+                            <span class="stat__lbl">chats today</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat__num">4:32</span>
+                            <span class="stat__lbl">avg. duration</span>
+                        </div>
+                    </div>
+                    <div class="activity-bar-wrap">
+                        <div class="activity-bar">
+                            <div class="activity-bar__fill" style="width:68%"></div>
+                        </div>
+                        <span class="activity-lbl">CURRENT ACTIVITY</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    UNIVIBE IS ANONYMOUS.<br>NO RECORDINGS. NO STORAGE.
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SCREEN 3 — VIDEO CHAT
+         ═══════════════════════════════════════════════════════════════ -->
+    <div id="video-chat-container">
+
+        <!-- Top bar -->
+        <div class="chat-topbar">
+            <span class="wordmark chat-topbar__wordmark">UNIVIBE</span>
+            <div class="chat-topbar__center">
+                <span class="live-dot"></span>
+                <span id="chat-timer" class="chat-timer">CONNECTED — 00:00</span>
+            </div>
+            <div class="chat-topbar__end">
+                <!-- intentionally empty; theme toggle is always-visible fixed -->
+            </div>
+        </div>
+
+        <!-- Video area -->
+        <div id="videos">
+            <!-- Remote: fills the area -->
+            <div class="video-wrapper video-wrapper--remote">
+                <video id="remoteVideo" autoplay playsinline></video>
+                <span class="video-label">STRANGER</span>
+                <div class="video-no-feed">Connecting video...</div>
+            </div>
+
+            <!-- Local PIP: top-left corner -->
+            <div class="video-wrapper video-wrapper--local">
+                <span class="video-label video-label--local">YOU</span>
+                <video id="localVideo" autoplay muted playsinline></video>
+            </div>
+        </div>
+
+        <!-- Text chat (slides in from right) -->
+        <div id="text-chat-area" class="chat-hidden">
+            <div class="chat-panel__hd">
+                <span class="field-label">CHAT</span>
+            </div>
+            <div id="message-list"></div>
+            <div id="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Type something...">
+                <button id="send-message-btn" title="Send">→</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ─── CONTROL BAR ───────────────────────────────────────────────── -->
+    <div id="chat-controls">
+        <div class="ctrl-group">
+            <button id="mute-button" class="ctrl-btn" title="Toggle mic" disabled>
+                <span class="ctrl-btn__ico">🎤</span>
+                <span class="ctrl-btn__lbl">MIC</span>
+            </button>
+            <button id="video-toggle-button" class="ctrl-btn" title="Toggle camera" disabled>
+                <span class="ctrl-btn__ico">📷</span>
+                <span class="ctrl-btn__lbl">CAM</span>
+            </button>
+        </div>
+
+        <div class="ctrl-divider"></div>
+
+        <div class="ctrl-group ctrl-group--center">
+            <button id="skip-button" class="btn btn--skip">Skip →</button>
+        </div>
+
+        <div class="ctrl-divider"></div>
+
+        <div class="ctrl-group">
+            <button id="toggle-chat-btn" class="ctrl-btn" title="Toggle chat">
+                <span class="ctrl-btn__ico">💬</span>
+                <span class="ctrl-btn__lbl">CHAT</span>
+            </button>
+            <button id="change-preference-btn" class="ctrl-btn" title="Change preference">
+                <span class="ctrl-btn__ico">⚙</span>
+                <span class="ctrl-btn__lbl">FILTER</span>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ─── PREFERENCE MODAL ─────────────────────────────────────────── -->
+    <div id="preference-modal" class="modal-hidden">
+        <div class="modal-box">
+            <h3 class="modal-title">Change Filter</h3>
+            <p class="modal-desc">Applies to your next match.</p>
+            <div class="field-group">
+                <label class="field-label" for="modal-preference-select">SHOW ME</label>
+                <select id="modal-preference-select" class="field-input">
+                    <option value="any">Anyone</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button id="save-preference-btn" class="btn btn--primary">Save</button>
+                <button id="cancel-preference-btn" class="btn btn--outline">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ─── GLOBAL STATUS TOAST ──────────────────────────────────────── -->
+    <div id="status-message" class="status"></div>
+
+
+    <!-- ─── INLINE UI EXTRAS (tabs, modal, timer, toggles) ───────────── -->
+    <script>
+    (function () {
+        'use strict';
+
+        // ── Auth tab management ──────────────────────────────────────
+        const tabRegister = document.getElementById('show-register');
+        const tabLogin    = document.getElementById('show-login');
+
+        function setTab(active) {
+            tabRegister.classList.toggle('active', active === 'register');
+            tabLogin.classList.toggle('active',    active === 'login');
+        }
+
+        tabRegister.addEventListener('click', () => setTab('register'));
+        tabLogin.addEventListener('click',    () => setTab('login'));
+
+        // ── Dashboard preference toggle buttons ──────────────────────
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const val = btn.dataset.value;
+                const prefSpan = document.getElementById('logged-in-preference');
+                if (prefSpan) prefSpan.textContent = val;
+                const sel = document.getElementById('modal-preference-select');
+                if (sel) sel.value = val;
+            });
+        });
+
+        // ── Preference modal ─────────────────────────────────────────
+        const modal  = document.getElementById('preference-modal');
+        const openEl = document.getElementById('change-preference-btn');
+        const saveEl = document.getElementById('save-preference-btn');
+        const cancelEl = document.getElementById('cancel-preference-btn');
+
+        function openModal()  { modal?.classList.replace('modal-hidden', 'modal-visible'); }
+        function closeModal() { modal?.classList.replace('modal-visible', 'modal-hidden'); }
+
+        openEl?.addEventListener('click', openModal);
+        cancelEl?.addEventListener('click', closeModal);
+        saveEl?.addEventListener('click', () => {
+            const val = document.getElementById('modal-preference-select')?.value;
+            if (val) {
+                const prefSpan = document.getElementById('logged-in-preference');
+                if (prefSpan) prefSpan.textContent = val;
+                document.querySelectorAll('.toggle-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.value === val);
+                });
+            }
+            closeModal();
+        });
+
+        // Close modal on backdrop click
+        modal?.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+        // ── Chat session timer ───────────────────────────────────────
+        let timerInterval = null;
+        let timerSec = 0;
+        const timerEl = document.getElementById('chat-timer');
+
+        function startTimer() {
+            timerSec = 0;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timerSec++;
+                const m = String(Math.floor(timerSec / 60)).padStart(2, '0');
+                const s = String(timerSec % 60).padStart(2, '0');
+                if (timerEl) timerEl.textContent = `CONNECTED — ${m}:${s}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            if (timerEl) timerEl.textContent = 'CONNECTED — 00:00';
+        }
+
+        // Watch for body.in-chat class to start/stop timer
+        new MutationObserver(() => {
+            document.body.classList.contains('in-chat') ? startTimer() : stopTimer();
+        }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    })();
+    </script>
+
+    <script src="/app.js"></script>
+</body>
+
+</html>

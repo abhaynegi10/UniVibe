@@ -47,7 +47,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // --- Serve Frontend Static Files ---
-app.use(express.static(path.join(__dirname, '../univibefrontend')));
+const staticPath = path.join(__dirname, 'public');
+app.use(express.static(staticPath));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
