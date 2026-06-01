@@ -448,7 +448,9 @@ app.get('/api/turn-credentials', (req, res) => {
 app.get('/health', (req, res) => { res.status(200).json({ status: 'OK', online: Object.keys(onlineUsers).length }); });
 
 // --- Catch-all: serve index.html for any non-API route (SPA support) ---
-app.get('*', (req, res) => {
+// Note: app.use() (no path) is used instead of app.get('*') because
+// path-to-regexp v8+ (Node 24) rejects bare '*' wildcards at startup.
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, '../univibefrontend', 'index.html'));
 });
 
