@@ -16,6 +16,11 @@ let isWebRTCInitiator = false;
 let makingOffer = false; // Flag to prevent duplicate offer creation
 let isChatVisible = false; // <-- ADD THIS LINE
 
+// --- Room feature globals ---
+let currentRoomId = null;   // ID of the private room we're in
+let isRoomCall = false;     // true when in a private room call (vs. stranger)
+let pendingRoomCode = null; // room code from URL ?room= param, applied after login
+
 // ICE config is fetched from the server at connection time (keeps TURN secrets off the client)
 let pcConfig = {
     iceServers: [
@@ -426,7 +431,13 @@ function toggleVideo() { if (!localStream) return; localStream.getVideoTracks().
 async function createOffer() {
     if (!peerConnection || peerConnection.signalingState !== 'stable') { console.warn("PC: Cannot create offer in state:", peerConnection?.signalingState); return; } try { const offer = await peerConnection.createOffer(); await peerConnection.setLocalDescription(offer); sendSignalingMessage({ type: 'offer', sdp: offer.sdp }); console.log("PC: Offer created and sent."); } catch (e) { handleWebRTCError("Offer creation failed.") }
 }
-function sendSignalingMessage(msg) { if (socket?.connected && currentPeerId) socket.emit('webrtc-signal', { toId: currentPeerId, signal: msg }); }
+function sendSignalingMessage(msg) {
+    if (isRoomCall && currentRoomId && socket?.connected) {
+        socket.emit('room-signal', { roomId: currentRoomId, signal: msg });
+    } else if (socket?.connected && currentPeerId) {
+        socket.emit('webrtc-signal', { toId: currentPeerId, signal: msg });
+    }
+}
 async function handleOffer(signal) {
     if (!peerConnection || peerConnection.signalingState !== 'stable') { console.warn("PC: Cannot handle offer in state:", peerConnection?.signalingState); return; }
     try {
@@ -508,7 +519,7 @@ function handleSignalingStateChangeEvent() { if (!peerConnection) return; consol
 // ==================================================
 // --- Using the refined startWebRTCConnection from previous step ---
 function startWebRTCConnection() {
-    if (!currentPeerId || !localStream) { console.error("WebRTC Start Failed:", { currentPeerId, hasLocalStream: !!localStream }); handleWebRTCError("Cannot start video chat. Missing peer or stream."); return; }
+    if ((!currentPeerId && !isRoomCall) || !localStream) { console.error("WebRTC Start Failed:", { currentPeerId, isRoomCall, hasLocalStream: !!localStream }); handleWebRTCError("Cannot start video chat. Missing peer or stream."); return; }
 
     console.log("PC: Creating PeerConnection instance...");
     closePeerConnection();
@@ -628,7 +639,20 @@ async function createOffer() {
 // --- Modified resetChatState to handle preview ---
 function resetChatState() {
     console.log("Resetting full chat state...");
-    closePeerConnection(); // Close WebRTC connection first
+
+    // Room cleanup: tell server we left the room
+    if (isRoomCall && currentRoomId && socket?.connected) {
+        socket.emit('leave-room', { roomId: currentRoomId });
+    }
+    currentRoomId = null;
+    isRoomCall = false;
+    showRoomDefaultState();
+    if (messageList) messageList.innerHTML = '';
+    if (skipButton) skipButton.textContent = 'Skip →';
+    const _timerEl = document.getElementById('chat-timer');
+    if (_timerEl) _timerEl.textContent = 'CONNECTED — 00:00';
+
+    closePeerConnection(); // Close WebRTC connection
     updateChatStatus('Idle');
     isLooking = false;
     currentPeerId = null;
@@ -718,6 +742,9 @@ function setupSocketListeners() {
             if (isLooking) resetChatUI('searching');
             else if (currentPeerId) resetChatUI('in-chat');
         }
+
+        // Apply any pending room code from a shared URL
+        applyPendingRoomCode();
     });
 
     socket.on('disconnect', (reason) => {
@@ -829,6 +856,61 @@ function setupSocketListeners() {
         }
     });
 
+    // --- Room Socket Listeners ---
+    socket.on('room-created', ({ roomId }) => {
+        currentRoomId = roomId;
+        showRoomWaitingState(roomId);
+        showStatusMessage(`Room ${roomId} created! Share the code with a friend.`, false);
+    });
+
+    socket.on('room-ready', ({ roomId, initiator }) => {
+        console.log(`[Room] Ready: ${roomId} | initiator: ${initiator}`);
+        isRoomCall = true;
+        currentRoomId = roomId;
+        isWebRTCInitiator = initiator;
+
+        // Update controls for room mode
+        if (skipButton) skipButton.textContent = 'Leave Room ×';
+        const timerEl = document.getElementById('chat-timer');
+        if (timerEl) timerEl.textContent = `ROOM — ${roomId}`;
+        if (messageList) messageList.innerHTML = '';
+
+        updateChatStatus('Room call started!');
+        showView('in-chat');
+        resetChatUI('in-chat');
+        startWebRTCConnection();
+    });
+
+    socket.on('room-signal', async ({ signal }) => {
+        if (!isRoomCall || !currentRoomId) { console.warn('[Room] Signal received but not in a room call, ignoring.'); return; }
+        try {
+            switch (signal?.type) {
+                case 'offer':     await handleOffer(signal); break;
+                case 'answer':    await handleAnswer(signal); break;
+                case 'candidate': await handleCandidate(signal); break;
+                default: console.warn('[Room] Unknown signal type:', signal?.type);
+            }
+        } catch (e) {
+            console.error('[Room] Signal error:', e);
+            handleWebRTCError(`Room signal error: ${e.message}`);
+        }
+    });
+
+    socket.on('room-receive-message', ({ message }) => {
+        displayMessage(message, false);
+    });
+
+    socket.on('room-partner-left', ({ message }) => {
+        console.log(`[Room] Partner left: ${message}`);
+        showStatusMessage(message || 'Your partner left the room.', false);
+        resetChatState();
+    });
+
+    socket.on('room-error', ({ message }) => {
+        console.error(`[Room Error] ${message}`);
+        showStatusMessage(message, true);
+    });
+
     console.log("Socket listeners setup complete.");
 }
 
@@ -909,8 +991,14 @@ async function handleStartChat() {
 // --- Modified handleSkipOrStop to rely on chat-ended ---
 function handleSkipOrStop() {
     if (!socket?.connected) return;
-    if (isLooking) { console.log("Stop looking action..."); socket.emit('stop-looking'); updateChatStatus('Stopping search...'); }
-    else if (currentPeerId) { console.log("Skip chat action..."); socket.emit('skip'); updateChatStatus('Skipping...'); }
+    if (isRoomCall && currentRoomId) {
+        // Leave the private room (resetChatState emits 'leave-room' internally)
+        resetChatState();
+    } else if (isLooking) {
+        console.log("Stop looking action..."); socket.emit('stop-looking'); updateChatStatus('Stopping search...');
+    } else if (currentPeerId) {
+        console.log("Skip chat action..."); socket.emit('skip'); updateChatStatus('Skipping...');
+    }
     // DO NOT reset state here. Wait for 'chat-ended' from server.
 }
 
@@ -925,22 +1013,81 @@ function handleLogout() {
     showStatusMessage('Logged out.', false);
 }
 // --- Add Text Chat Send Function ---
-function sendMessage() { // <-- ADD THIS FUNCTION
-    if (!chatInput || !socket || !currentPeerId) return;
+function sendMessage() {
+    if (!chatInput) return;
     const message = chatInput.value.trim();
+    if (!message) return;
 
-    if (message) {
-        console.log(`Sending message: "${message}" to ${currentPeerId}`);
-        displayMessage(message, true); // Display locally
+    displayMessage(message, true); // Show locally
 
-        // Send message via Server Relay
-        socket.emit('send-message', {
-            toId: currentPeerId,
-            message: message
-        });
-
-        chatInput.value = ''; // Clear input field
+    if (isRoomCall && currentRoomId && socket?.connected) {
+        socket.emit('room-message', { roomId: currentRoomId, message });
+    } else if (socket?.connected && currentPeerId) {
+        socket.emit('send-message', { toId: currentPeerId, message });
     }
+
+    chatInput.value = '';
+}
+
+// ==================================================
+// Room Feature Functions
+// ==================================================
+function showRoomDefaultState() {
+    const def = document.getElementById('room-default-state');
+    const wait = document.getElementById('room-waiting-state');
+    if (def) def.style.display = 'flex';
+    if (wait) wait.style.display = 'none';
+}
+
+function showRoomWaitingState(roomId) {
+    const def = document.getElementById('room-default-state');
+    const wait = document.getElementById('room-waiting-state');
+    const codeEl = document.getElementById('room-code-value');
+    if (def) def.style.display = 'none';
+    if (wait) wait.style.display = 'flex';
+    if (codeEl) codeEl.textContent = roomId;
+}
+
+function handleCreateRoom() {
+    if (!socket?.connected) { showStatusMessage('Not connected to server.', true); return; }
+    if (!localStream) { showStatusMessage('Enable your camera first before creating a room.', true); return; }
+    socket.emit('create-room');
+}
+
+function handleJoinRoom() {
+    if (!socket?.connected) { showStatusMessage('Not connected to server.', true); return; }
+    if (!localStream) { showStatusMessage('Enable your camera first before joining a room.', true); return; }
+    const codeInput = document.getElementById('room-code-input');
+    const code = (codeInput?.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+    if (code.length !== 6) { showStatusMessage('Enter a valid 6-character room code.', true); return; }
+    socket.emit('join-room', { roomId: code });
+}
+
+function copyRoomLink() {
+    const codeEl = document.getElementById('room-code-value');
+    const roomId = (codeEl?.textContent?.trim()) || currentRoomId;
+    if (!roomId || roomId.includes('—')) return;
+    const url = `${window.location.origin}?room=${roomId}`;
+    navigator.clipboard?.writeText(url)
+        .then(() => showStatusMessage('Room link copied! Share it with your friend.', false))
+        .catch(() => showStatusMessage(`Share this link: ${url}`, false));
+}
+
+function handleCancelRoom() {
+    if (currentRoomId && socket?.connected) socket.emit('leave-room', { roomId: currentRoomId });
+    currentRoomId = null;
+    showRoomDefaultState();
+    showStatusMessage('Room cancelled.', false);
+}
+
+function applyPendingRoomCode() {
+    if (!pendingRoomCode) return;
+    const codeInput = document.getElementById('room-code-input');
+    if (codeInput) {
+        codeInput.value = pendingRoomCode;
+        showStatusMessage(`Room code ${pendingRoomCode} pre-filled — click Join when ready!`, false);
+    }
+    pendingRoomCode = null;
 }
 
 // ==================================================
@@ -957,13 +1104,25 @@ themeToggleButton?.addEventListener('click', toggleTheme);
 muteButton?.addEventListener('click', toggleAudio);
 videoToggleButton?.addEventListener('click', toggleVideo);
 // --- Add Chat Event Listeners ---
-toggleChatButton?.addEventListener('click', toggleChatArea);     // <-- ADD
-sendMessageButton?.addEventListener('click', sendMessage);        // <-- ADD
-chatInput?.addEventListener('keydown', (event) => {             // <-- ADD
+toggleChatButton?.addEventListener('click', toggleChatArea);
+sendMessageButton?.addEventListener('click', sendMessage);
+chatInput?.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         sendMessage();
     }
+});
+
+// --- Room Event Listeners ---
+document.getElementById('create-room-btn')?.addEventListener('click', handleCreateRoom);
+document.getElementById('join-room-btn')?.addEventListener('click', handleJoinRoom);
+document.getElementById('copy-room-link-btn')?.addEventListener('click', copyRoomLink);
+document.getElementById('cancel-room-btn')?.addEventListener('click', handleCancelRoom);
+document.getElementById('room-code-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleJoinRoom();
+});
+document.getElementById('room-code-input')?.addEventListener('input', (e) => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 });
 
 // ==================================================
@@ -977,6 +1136,13 @@ async function handleAuthCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');       // New secure: one-time code
     const error = urlParams.get('error');
+
+    // Extract room code BEFORE cleaning the URL (handles shared ?room=CODE links)
+    const roomParam = urlParams.get('room');
+    if (roomParam) {
+        const cleaned = roomParam.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+        if (cleaned.length === 6) pendingRoomCode = cleaned;
+    }
 
     console.log("Checking for Auth Callback Params:", { code: code ? code.substring(0, 8) + '...' : null, error });
 

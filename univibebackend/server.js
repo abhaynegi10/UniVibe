@@ -78,6 +78,14 @@ require('./config/passport')(passport); // Pass the passport instance to your co
 
 // --- In-memory store (Replace with Redis for production/scalability) ---
 const onlineUsers = {};
+const rooms = {}; // { roomId: { id, ownerId, members: [userId, ...] } }
+
+function generateRoomId() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I/O/0/1 to avoid confusion
+    let id;
+    do { id = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join(''); } while (rooms[id]);
+    return id;
+}
 // --- Socket.IO Server Initialization ---
 const io = new Server(server, {
     // MODIFY Socket.IO CORS to reuse the options from above
@@ -115,7 +123,7 @@ io.on('connection', (socket) => {
     // Store user state
     onlineUsers[socket.userId] = {
         socketId: socket.id, username: socket.user.username, gender: socket.user.gender,
-        preference: socket.user.preference, isSearching: false, currentPeerId: null
+        preference: socket.user.preference, isSearching: false, currentPeerId: null, currentRoomId: null
     };
     console.log(`Online: ${Object.keys(onlineUsers).length}`);
 
@@ -130,6 +138,13 @@ io.on('connection', (socket) => {
     socket.on('stop-looking', () => handleStopLooking(socket));
     socket.on('skip', () => handleSkip(socket));
     socket.on('webrtc-signal', (data) => handleWebRTCSignal(socket, data));
+
+    // --- Room Events ---
+    socket.on('create-room', () => handleCreateRoom(socket));
+    socket.on('join-room', ({ roomId } = {}) => handleJoinRoom(socket, roomId));
+    socket.on('room-signal', ({ roomId, signal } = {}) => handleRoomSignal(socket, roomId, signal));
+    socket.on('room-message', ({ roomId, message } = {}) => handleRoomMessage(socket, roomId, message));
+    socket.on('leave-room', ({ roomId } = {}) => handleLeaveRoom(socket, roomId));
    
     // +++ ADD Handler for Text Messages HERE +++
     socket.on('send-message', ({ toId, message }) => {
@@ -238,6 +253,10 @@ function handleDisconnect(socket, reason) {
     const userInfo = onlineUsers[userId];
     console.log(`🔻 Disconnect: ${socket.user?.username || userId} | ${socket.id} | Reason: ${reason}`);
     if (userInfo) {
+        // Room cleanup: notify room partner on disconnect
+        if (userInfo.currentRoomId) {
+            _removeFromRoom(userId, userInfo.currentRoomId, 'Partner disconnected.', socket);
+        }
         if (userInfo.currentPeerId) { // Notify peer if user was in a chat
             const peerId = userInfo.currentPeerId;
             const peerUser = onlineUsers[peerId];
@@ -294,8 +313,102 @@ function findPeerFor(userId) {
     }
 }
 
+// --- Room Handler Functions ---
+function handleCreateRoom(socket) {
+    const userId = socket.userId;
+    const userInfo = onlineUsers[userId];
+    if (!userInfo) return;
+    if (userInfo.currentRoomId) {
+        socket.emit('room-error', { message: 'You are already in a room. Cancel it first.' });
+        return;
+    }
+    const roomId = generateRoomId();
+    rooms[roomId] = { id: roomId, ownerId: userId, members: [userId], createdAt: Date.now() };
+    userInfo.currentRoomId = roomId;
+    console.log(`[Room] Created: ${roomId} by ${socket.user.username}`);
+    socket.emit('room-created', { roomId });
+}
+
+function handleJoinRoom(socket, roomId) {
+    const userId = socket.userId;
+    const userInfo = onlineUsers[userId];
+    if (!userInfo || !roomId || typeof roomId !== 'string') {
+        socket.emit('room-error', { message: 'Invalid room code.' }); return;
+    }
+    const id = roomId.toUpperCase().trim();
+    const room = rooms[id];
+    if (!room) { socket.emit('room-error', { message: `Room "${id}" does not exist.` }); return; }
+    if (room.members.length >= 2) { socket.emit('room-error', { message: `Room "${id}" is already full.` }); return; }
+    if (room.members.includes(userId)) { socket.emit('room-error', { message: 'You created this room — share the code with a friend.' }); return; }
+    room.members.push(userId);
+    userInfo.currentRoomId = id;
+    const ownerUser = onlineUsers[room.ownerId];
+    console.log(`[Room] ${socket.user.username} joined room ${id}`);
+    // Joiner is WebRTC initiator (creates offer); owner is receiver
+    const ownerSocket = ownerUser ? io.sockets.sockets.get(ownerUser.socketId) : null;
+    if (ownerSocket) ownerSocket.emit('room-ready', { roomId: id, initiator: false });
+    socket.emit('room-ready', { roomId: id, initiator: true });
+}
+
+function handleRoomSignal(socket, roomId, signal) {
+    if (!roomId || !signal) return;
+    const userId = socket.userId;
+    const room = rooms[roomId];
+    if (!room || !room.members.includes(userId)) { console.warn(`[Room Signal] ${userId} not in room ${roomId}`); return; }
+    const otherId = room.members.find(id => id !== userId);
+    if (!otherId) return;
+    const other = onlineUsers[otherId];
+    if (!other) return;
+    const otherSocket = io.sockets.sockets.get(other.socketId);
+    if (otherSocket) otherSocket.emit('room-signal', { signal, fromId: userId });
+}
+
+function handleRoomMessage(socket, roomId, message) {
+    if (!roomId || !message || typeof message !== 'string') return;
+    const userId = socket.userId;
+    const room = rooms[roomId];
+    if (!room || !room.members.includes(userId)) { console.warn(`[Room Msg] ${userId} not in room ${roomId}`); return; }
+    const sanitized = message.trim().slice(0, 1000);
+    if (!sanitized) return;
+    const otherId = room.members.find(id => id !== userId);
+    if (!otherId) return;
+    const other = onlineUsers[otherId];
+    if (!other) return;
+    const otherSocket = io.sockets.sockets.get(other.socketId);
+    if (otherSocket) otherSocket.emit('room-receive-message', { message: sanitized });
+}
+
+function handleLeaveRoom(socket, roomId) {
+    if (!roomId) return;
+    _removeFromRoom(socket.userId, roomId, 'Partner left the room.', socket);
+}
+
+function _removeFromRoom(userId, roomId, notifyMsg, leavingSocket) {
+    const room = rooms[roomId];
+    if (!room) return;
+    room.members = room.members.filter(id => id !== userId);
+    if (onlineUsers[userId]) onlineUsers[userId].currentRoomId = null;
+    console.log(`[Room] ${userId} left room ${roomId}. Remaining: ${room.members.length}`);
+    if (room.members.length > 0 && notifyMsg) {
+        const remainingUser = onlineUsers[room.members[0]];
+        if (remainingUser) {
+            const s = io.sockets.sockets.get(remainingUser.socketId);
+            if (s) s.emit('room-partner-left', { message: notifyMsg });
+        }
+    }
+    if (room.members.length === 0) { delete rooms[roomId]; console.log(`[Room] Deleted empty room ${roomId}`); }
+}
+
 // --- REST API Routes ---
 app.use('/api/auth', authRoutes);
+
+// --- Room existence check (for URL-sharing validation) ---
+app.get('/api/room/:id', (req, res) => {
+    const roomId = (req.params.id || '').toUpperCase().trim();
+    const room = rooms[roomId];
+    if (!room) return res.status(404).json({ exists: false });
+    res.json({ exists: true, isFull: room.members.length >= 2 });
+});
 
 // --- TURN Server Credentials Endpoint ---
 // Keeps TURN secrets server-side; frontend fetches at chat start

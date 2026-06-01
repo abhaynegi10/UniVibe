@@ -1237,3 +1237,109 @@ body.in-chat #logged-in-view { display: none !important; }
     .dash-main { padding: 32px 24px; }
     .preview-frame { width: 100%; max-width: 320px; }
 }
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   ROOMS SECTION — Private 1-to-1 rooms
+   ════════════════════════════════════════════════════════════════════ */
+
+.rooms-divider { margin: 16px 0 0; }
+
+.rooms-section {
+    max-width: 340px;
+    border: var(--border);
+    padding: 20px;
+    box-shadow: var(--sh-xs);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow var(--t);
+}
+.rooms-section:hover { box-shadow: var(--sh-sm); }
+
+.rooms-section__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--ff-hl);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 14px;
+}
+
+.rooms-badge {
+    font-family: var(--ff-mono);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    padding: 3px 8px;
+    border: 1px solid var(--ember);
+    color: var(--ember);
+    white-space: nowrap;
+}
+
+.room-state {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.room-join-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.room-code-field {
+    flex: 1;
+    font-family: var(--ff-mono);
+    font-size: 14px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    min-width: 0;
+}
+.room-code-field::placeholder { letter-spacing: 0.1em; font-size: 12px; }
+
+.room-code-display {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.room-code-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: var(--border);
+    background: var(--bg-2);
+    box-shadow: var(--sh-xs);
+}
+
+.room-code-num {
+    font-family: var(--ff-mono);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.28em;
+    color: var(--text);
+    flex: 1;
+    line-height: 1;
+}
+
+.room-waiting-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.room-waiting-label {
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+@media (max-width: 920px) {
+    .rooms-section { max-width: 100%; }
+}
