@@ -40,7 +40,7 @@
                 <button type="submit">Register</button>
             </form>
             <hr>
-            <a href="http://localhost:5001/api/auth/google" class="google-btn" id="google-signup-btn">
+            <a href="/api/auth/google" class="google-btn" id="google-signup-btn">
                <img src="images/google.png" alt="Google icon" /> <!-- Add a Google icon image -->
                <span>Sign Up with Google</span>
            </a>
@@ -56,7 +56,7 @@
                 <button type="submit">Login</button>
             </form>
             <hr>
-            <a href="http://localhost:5001/api/auth/google" class="google-btn" id="google-login-btn">
+            <a href="/api/auth/google" class="google-btn" id="google-login-btn">
                 <img src="images/google.png" alt="Google icon" /> <!-- Add a Google icon image -->
                 <span>Login with Google</span>
             </a>
@@ -124,14 +124,32 @@
         <!-- START: Add Chat Toggle Button -->
         <button id="toggle-chat-btn" title="Toggle Text Chat">💬</button> <!-- New Button -->
         <!-- END: Add Chat Toggle Button -->
+         <button id="change-preference-btn" title="Change Preference">⚙️</button> <!-- Example icon -->
         <button id="skip-button">Skip</button> <!-- Keep existing skip button -->
     </div>
-
+  
+    <!-- Preference Change Modal (Initially Hidden) -->
+<div id="preference-modal" class="modal-hidden">
+    <div class="modal-content">
+        <h3>Change Your Preference</h3>
+        <p>This will apply to your next chat partner.</p>
+        <div>
+            <label for="modal-preference-select">Looking for:</label>
+            <select id="modal-preference-select">
+                <option value="any">Any</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+        </div>
+        <div class="modal-actions">
+            <button id="save-preference-btn">Save</button>
+            <button id="cancel-preference-btn">Cancel</button>
+        </div>
+    </div>
+</div>
 
     <!-- GLOBAL STATUS MESSAGE AREA -->
     <div id="status-message" class="status"></div>
-
-
     <!-- APP SCRIPT -->
     <script src="app.js"></script>
 </body>

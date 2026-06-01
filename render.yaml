@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: univibe
+    runtime: node
+    rootDir: univibebackend
+    buildCommand: npm install
+    startCommand: node server.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false          # Set manually in Render dashboard (secret)
+      - key: JWT_SECRET
+        generateValue: true  # Render auto-generates a secure random value
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: SESSION_SECRET
+        generateValue: true  # Render auto-generates a secure random value
+      - key: GOOGLE_CLIENT_ID
+        sync: false          # Set manually in Render dashboard
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false          # Set manually in Render dashboard
+      - key: FRONTEND_URL
+        sync: false          # Set to your Render URL after first deploy
+      - key: TURN_USERNAME
+        sync: false          # Set manually from Open Relay dashboard
+      - key: TURN_CREDENTIAL
+        sync: false          # Set manually from Open Relay dashboard

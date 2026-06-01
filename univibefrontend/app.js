@@ -3,8 +3,8 @@
 // ==================================================
 // 1. Configuration & Global Variables
 // ==================================================
-const API_BASE_URL = 'http://localhost:5001/api/auth';
-const SOCKET_URL = 'http://localhost:5001';
+const API_BASE_URL = '/api/auth';
+const SOCKET_URL = window.location.origin;
 
 let socket = null;
 let isLooking = false;
@@ -16,13 +16,26 @@ let isWebRTCInitiator = false;
 let makingOffer = false; // Flag to prevent duplicate offer creation
 let isChatVisible = false; // <-- ADD THIS LINE
 
-const pcConfig = {
+// ICE config is fetched from the server at connection time (keeps TURN secrets off the client)
+let pcConfig = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
-        // Add TURN server here for production
     ]
 };
+
+async function fetchIceConfig() {
+    try {
+        const res = await fetch('/api/turn-credentials');
+        if (res.ok) {
+            const data = await res.json();
+            pcConfig = data;
+            console.log('ICE config loaded:', pcConfig.iceServers.length, 'servers');
+        }
+    } catch (e) {
+        console.warn('Could not fetch ICE config, using STUN only:', e.message);
+    }
+}
 
 // ==================================================
 // 2. DOM Elements
@@ -95,20 +108,55 @@ function loadTheme() { const savedTheme = localStorage.getItem('theme') || 'ligh
 // ==================================================
 // 4. State Management (Auth, etc.)
 // ==================================================
-// --- Modified checkLoginStatus to be async and start preview ---
-async function checkLoginStatus() { // Make async if starting preview
-    console.log("Running checkLoginStatus (normal load or post-callback)...");
+// --- checkLoginStatus: validates stored token against /api/auth/me ---
+async function checkLoginStatus() {
+    console.log("Running checkLoginStatus...");
     const token = localStorage.getItem('authToken');
-    const user = JSON.parse(localStorage.getItem('authUser'));
-    if (token && user) {
-        console.log("Found existing token/user in localStorage.");
+
+    if (!token) {
+        console.log("No token found, showing login.");
+        showView('login');
+        return;
+    }
+
+    try {
+        // Validate token server-side — catches expired/tampered tokens
+        const response = await fetch(`${API_BASE_URL}/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            console.warn("Stored token is invalid or expired. Clearing and showing login.");
+            clearLoginData();
+            showView('login');
+            return;
+        }
+
+        const data = await response.json();
+        const user = data.user;
+
+        // Update stored user data in case it changed server-side
+        localStorage.setItem('authUser', JSON.stringify(user));
+
+        console.log("Token valid. Restoring session for:", user.username);
         showView('logged-in');
         showUserInfo(user);
-        await startPreview(); // Start preview if logged in
+        await startPreview();
         connectWebSocket(token);
-    } else {
-        console.log("No existing token/user found, showing login.");
-        showView('login');
+    } catch (err) {
+        console.error("Error validating token:", err);
+        // Network error — don't clear the token, maybe server is temporarily down
+        // Fall back to cached user if available
+        const cachedUser = JSON.parse(localStorage.getItem('authUser'));
+        if (cachedUser) {
+            console.warn("Server unreachable, using cached user data.");
+            showView('logged-in');
+            showUserInfo(cachedUser);
+            await startPreview();
+            connectWebSocket(token);
+        } else {
+            showView('login');
+        }
     }
 }
 function storeLoginData(token, user) { localStorage.setItem('authToken', token); localStorage.setItem('authUser', JSON.stringify(user)); }
@@ -924,67 +972,73 @@ chatInput?.addEventListener('keydown', (event) => {             // <-- ADD
 // --- DOMContentLoaded now calls async checkLoginStatus ---
 // app.js - Add near the top or inside DOMContentLoaded
 
-// --- Function to handle the OAuth callback ---
-function handleAuthCallback() {
+// --- Function to handle the OAuth callback (now uses code-exchange for security) ---
+async function handleAuthCallback() {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const userParam = urlParams.get('user');
+    const code = urlParams.get('code');       // New secure: one-time code
     const error = urlParams.get('error');
 
-    console.log("Checking for Auth Callback Params:", { token, userParam, error });
+    console.log("Checking for Auth Callback Params:", { code: code ? code.substring(0, 8) + '...' : null, error });
+
+    // Clean URL immediately regardless of outcome
+    window.history.replaceState({}, document.title, window.location.pathname);
 
     if (error) {
         console.error("OAuth Error received:", error);
         showStatusMessage(`Google Authentication Failed: ${error}`, true);
-        // Clean the URL parameters
-        window.history.replaceState({}, document.title, window.location.pathname);
-        showView('login'); // Show login view on error
-        return; // Stop processing
+        showView('login');
+        return;
     }
 
-    if (token && userParam) {
-        console.log("OAuth Callback Success: Token and user data found.");
-        try {
-            const user = JSON.parse(userParam); // Parse user data
+    if (code) {
+        console.log("OAuth code found — exchanging for token...");
+        showStatusMessage('Completing Google sign-in...', false);
 
-            // Store data like regular login
+        try {
+            // Exchange the short-lived code for the real JWT
+            const response = await fetch(`${API_BASE_URL}/token-exchange`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Token exchange failed');
+            }
+
+            const { token, user } = data;
             storeLoginData(token, user);
 
-            // Clean the URL parameters from address bar (important!)
-            window.history.replaceState({}, document.title, window.location.pathname);
-
-            // --- Redirect to Logged-in View ---
             showView('logged-in');
             showUserInfo(user);
-            startPreview(); // Start camera preview
-            connectWebSocket(token); // Connect WebSocket
+            startPreview();
+            connectWebSocket(token);
 
-            // Check if user needs to set gender/preference
-            if (user.gender === 'other' || !user.gender || !user.preference) {
-                // TODO: Implement UI indication or redirect to a profile setup page
-                setTimeout(() => { // Delay slightly
-                    showStatusMessage('Welcome! Please update your profile gender/preference if needed.', false);
-                    // Maybe highlight profile section or show a modal
+            // Nudge Google users to set their gender/preference
+            if (user.gender === 'other' || !user.preference) {
+                setTimeout(() => {
+                    showStatusMessage('Welcome! Please update your gender/preference if needed.', false);
                 }, 1000);
             }
 
         } catch (e) {
-            console.error("Error processing OAuth callback user data:", e);
-            showStatusMessage("Failed to process login data.", true);
-            // Clean the URL parameters
-            window.history.replaceState({}, document.title, window.location.pathname);
-            showView('login'); // Fallback to login
+            console.error("Token exchange error:", e);
+            showStatusMessage(`Sign-in failed: ${e.message}. Please try again.`, true);
+            showView('login');
         }
-    } else {
-        console.log("No OAuth callback parameters detected.");
-        // Proceed with normal login check if no callback params
-        checkLoginStatus(); // Your existing function
+        return;
     }
+
+    // No callback params — normal page load, validate existing session
+    checkLoginStatus();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed.");
     loadTheme();
+    fetchIceConfig(); // Pre-load TURN credentials from server
     // --- Call the callback handler INSTEAD of checkLoginStatus directly ---
     handleAuthCallback();
     // --- End Change ---

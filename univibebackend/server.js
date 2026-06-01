@@ -4,6 +4,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const http = require('http');
+const path = require('path');
 const { Server } = require("socket.io");
 const jwt = require('jsonwebtoken');
 
@@ -27,15 +28,26 @@ const server = http.createServer(app);
 
 
 // --- Middleware ---
-// Replace your existing app.use(cors()); with this block:
+// Allow both localhost (dev) and the deployed Render URL (prod)
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:5001',
+    'http://127.0.0.1:5001',
+].filter(Boolean);
+
 const corsOptions = {
-    // Allow your specific frontend origin(s)
-    origin: process.env.FRONTEND_URL || ["http://localhost:8080", "http://127.0.0.1:8080"],
-    methods: ["GET", "POST"],
-    credentials: true // Important for sessions/cookies if used later
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS: origin '${origin}' not allowed`));
+    },
+    methods: ['GET', 'POST'],
+    credentials: true,
 };
 app.use(cors(corsOptions));
-// --- END MODIFY CORS --- // TODO: Configure CORS options for production
+
+// --- Serve Frontend Static Files ---
+app.use(express.static(path.join(__dirname, '../univibefrontend')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -283,11 +295,49 @@ function findPeerFor(userId) {
 }
 
 // --- REST API Routes ---
-// Ensure you have routes/auth.js and controllers/authController.js setup from Step 1
 app.use('/api/auth', authRoutes);
 
+// --- TURN Server Credentials Endpoint ---
+// Keeps TURN secrets server-side; frontend fetches at chat start
+app.get('/api/turn-credentials', (req, res) => {
+    const username = process.env.TURN_USERNAME;
+    const credential = process.env.TURN_CREDENTIAL;
+
+    if (!username || !credential) {
+        // No TURN configured — return only STUN (works on same-network calls)
+        return res.json({
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+            ]
+        });
+    }
+
+    res.json({
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            {
+                urls: [
+                    'turn:openrelay.metered.ca:80',
+                    'turn:openrelay.metered.ca:443',
+                    'turn:openrelay.metered.ca:443?transport=tcp',
+                    'turns:openrelay.metered.ca:443',
+                ],
+                username,
+                credential,
+            },
+        ]
+    });
+});
+
 // Basic health check
-app.get('/', (req, res) => { res.status(200).json({ status: 'OK', online: Object.keys(onlineUsers).length }); }); // Added online count
+app.get('/health', (req, res) => { res.status(200).json({ status: 'OK', online: Object.keys(onlineUsers).length }); });
+
+// --- Catch-all: serve index.html for any non-API route (SPA support) ---
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../univibefrontend', 'index.html'));
+});
 
 // --- Start Server ---
 const PORT = process.env.PORT || 5001;

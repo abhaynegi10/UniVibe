@@ -208,6 +208,13 @@ body.in-chat #chat-controls {
     line-height: 1;
 }
 
+#change-preference-btn::before {
+    content: '⚙️'; /* Settings/Gear icon emoji */
+    /* You can adjust font-size if this icon appears too large or small
+       compared to other icons in the control bar */
+    /* font-size: 18px; */
+}
+
 /* Hover effect for enabled buttons */
 #chat-controls button:hover:not(:disabled) {
     border-color: var(--text-color);
@@ -503,3 +510,126 @@ body.dark-mode .google-btn:hover {
 #send-message-btn:hover {
     background-color: var(--button-primary-hover-bg);
 }
+
+/* +++ START ADDING PREFERENCE MODAL STYLING +++ */
+/* --- Preference Change Modal Styling --- */
+#preference-modal {
+    position: fixed; /* Overlay the entire screen */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65); /* Semi-transparent dark overlay */
+    display: flex; /* For centering the modal content */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top of everything */
+
+    /* Initial state: hidden */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s; /* Smooth fade */
+}
+
+#preference-modal.modal-visible { /* Class to make it visible */
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s; /* Apply transition immediately when showing */
+}
+
+.modal-content {
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+    width: 90%;
+    max-width: 420px; /* Control max width */
+    text-align: center; /* Center text inside modal */
+    transform: scale(0.95); /* Slight scale for entry animation */
+    transition: transform 0.3s ease-in-out;
+}
+
+#preference-modal.modal-visible .modal-content {
+    transform: scale(1); /* Animate to full size */
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 500;
+    font-size: 1.4rem;
+}
+
+.modal-content p { /* The informational paragraph */
+    font-size: 0.9rem;
+    color: var(--text-color-light);
+    margin-bottom: 25px; /* More space before the select */
+}
+
+.modal-content div { /* General div inside modal */
+    margin-bottom: 20px;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-align: left; /* Align label text left */
+}
+
+.modal-content select#modal-preference-select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 4px;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.modal-content select#modal-preference-select:focus {
+    border-color: var(--button-secondary-bg);
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    outline: none;
+}
+
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 12px; /* Space between buttons */
+    margin-top: 25px; /* Space above buttons */
+    margin-bottom: 0; /* Remove default bottom margin from div */
+}
+
+.modal-actions button { /* General style for modal buttons */
+    padding: 9px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    border: 1px solid transparent;
+}
+
+#save-preference-btn {
+    background-color: var(--button-primary-bg);
+    color: white;
+    border-color: var(--button-primary-bg);
+}
+#save-preference-btn:hover {
+    background-color: var(--button-primary-hover-bg);
+    border-color: var(--button-primary-hover-bg);
+}
+
+#cancel-preference-btn {
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--input-border-color); /* More visible border */
+}
+#cancel-preference-btn:hover {
+    background-color: var(--button-control-hover-bg);
+    border-color: var(--button-control-border);
+}
+/* +++ END ADDING PREFERENCE MODAL STYLING +++ */
