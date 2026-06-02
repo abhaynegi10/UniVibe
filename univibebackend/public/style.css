@@ -1887,3 +1887,48 @@ body.dark-mode .auth-tab.active {
 .field-group {
     width: 100%;
 }
+
+
+/* ── DASHBOARD LAYOUT & NAV OVERRIDES ───────────────────────────── */
+
+/* Fix: Make room in dash-nav for the fixed theme toggle button */
+.dash-nav {
+    padding-right: 64px !important; 
+}
+
+/* Fix: Dashboard Main (left panel) Grid Layout */
+/* Moves the rooms-section to the right of the camera to save vertical space */
+@media (min-width: 900px) {
+    .dash-main {
+        display: grid !important;
+        grid-template-columns: max-content 1fr;
+        grid-template-areas:
+            "header header"
+            "user   rooms";
+        column-gap: 48px;
+        row-gap: 24px;
+        padding: 36px 48px !important;
+        overflow-y: hidden !important; /* prevent scroll since it fits */
+    }
+    .dash-main__header {
+        grid-area: header;
+        margin-bottom: 0;
+    }
+    #user-info-box {
+        grid-area: user;
+        width: 360px; /* constrain to make it look clean */
+    }
+    .rooms-section {
+        grid-area: rooms;
+        max-width: 380px !important;
+        margin: 0 !important; /* remove top margin */
+    }
+    .rooms-divider {
+        display: none !important;
+    }
+    
+    /* Ensure the camera preview fits the new constrained box */
+    .preview-frame {
+        width: 100% !important;
+    }
+}
