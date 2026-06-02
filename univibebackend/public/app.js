@@ -911,7 +911,20 @@ function setupSocketListeners() {
         showStatusMessage(message, true);
     });
 
+    // --- Live online count (updates hero counter + bento stat card) ---
+    socket.on('online-count', ({ count }) => {
+        updateOnlineCounters(count);
+    });
+
     console.log("Socket listeners setup complete.");
+}
+
+function updateOnlineCounters(count) {
+    const label = count === 1 ? '1 person online right now' : `${count} people online right now`;
+    const el1 = document.getElementById('auth-online-count');
+    const el2 = document.getElementById('auth-online-count-2');
+    if (el1) el1.textContent = `— ${label}`;
+    if (el2) el2.textContent = count;
 }
 
 // ==================================================

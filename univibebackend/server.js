@@ -129,10 +129,13 @@ io.on('connection', (socket) => {
     console.log(`Online: ${Object.keys(onlineUsers).length}`);
 
     // Confirm connection to client
+    const countNow = Object.keys(onlineUsers).length;
     socket.emit('connection-success', {
         message: `Welcome, ${socket.user.username}!`,
-        onlineUserCount: Object.keys(onlineUsers).length
+        onlineUserCount: countNow
     });
+    // Broadcast updated count to everyone
+    io.emit('online-count', { count: countNow });
 
     // --- Assign Event Handlers ---
     socket.on('start-looking', () => handleStartLooking(socket));
@@ -271,7 +274,9 @@ function handleDisconnect(socket, reason) {
         // Remove user only if this socket matches the stored one
         if (userInfo.socketId === socket.id) {
             delete onlineUsers[userId];
-            console.log(`[DC] Removed ${userId}. Online: ${Object.keys(onlineUsers).length}`);
+            const newCount = Object.keys(onlineUsers).length;
+            console.log(`[DC] Removed ${userId}. Online: ${newCount}`);
+            io.emit('online-count', { count: newCount });
         } else {
             console.log(`[DC] Socket ${socket.id} was not primary for ${userId}. Not removing.`);
         }

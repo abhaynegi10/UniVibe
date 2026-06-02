@@ -1343,3 +1343,136 @@ body.in-chat #logged-in-view { display: none !important; }
 @media (max-width: 920px) {
     .rooms-section { max-width: 100%; }
 }
+
+/* ------------------------------------------------------------------------
+   BENTO CARDS — 4-card trust grid on auth hero
+   -------------------------------------------------------------------- */
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 28px;
+    max-width: 480px;
+}
+
+.bento-card {
+    border: var(--border);
+    padding: 16px 16px 14px;
+    background: var(--bg);
+    box-shadow: var(--sh-xs);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: box-shadow var(--t), transform var(--t);
+    cursor: default;
+}
+.bento-card:hover { box-shadow: var(--sh-sm); transform: translate(-1px, -1px); }
+.bento-card--live { border-color: var(--ember); box-shadow: var(--sh-e-sm); }
+.bento-card--live:hover { box-shadow: var(--sh-e); }
+
+.bento-icon { font-size: 18px; line-height: 1; }
+
+.bento-title {
+    font-family: var(--ff-hl);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+.bento-list { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+.bento-list li {
+    font-family: var(--ff-body);
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    padding-left: 10px;
+    position: relative;
+}
+.bento-list li::before { content: '·'; position: absolute; left: 0; color: var(--ember); font-weight: 700; }
+
+.bento-caption {
+    font-family: var(--ff-mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    opacity: 0.6;
+    text-transform: uppercase;
+    margin-top: auto;
+}
+
+.bento-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bento-stat { display: flex; flex-direction: column; gap: 2px; }
+.bento-stat__num { font-family: var(--ff-hl); font-weight: 800; font-size: 20px; line-height: 1; letter-spacing: -0.02em; color: var(--text); }
+.bento-stat__lbl { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; }
+
+.live-pulse { animation: livePulse 2.4s ease-in-out infinite; }
+@keyframes livePulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; color: var(--ember); } }
+
+
+/* ------------------------------------------------------------------------
+   HOW IT WORKS STRIP
+   -------------------------------------------------------------------- */
+
+.how-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding: 12px 16px;
+    border: var(--border);
+    background: var(--bg-2);
+    box-shadow: var(--sh-xs);
+    max-width: 480px;
+}
+
+.how-step { display: flex; align-items: center; gap: 7px; font-family: var(--ff-body); font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; }
+.how-num {
+    font-family: var(--ff-mono);
+    font-size: 9px;
+    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ember);
+    color: var(--parchment);
+    flex-shrink: 0;
+}
+.how-arrow { font-family: var(--ff-mono); font-size: 11px; color: var(--text-muted); opacity: 0.5; }
+
+
+/* ------------------------------------------------------------------------
+   FEATURE BADGES — Below Google login button
+   -------------------------------------------------------------------- */
+
+.feature-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-col);
+    background: var(--bg);
+}
+
+.fbadge { font-family: var(--ff-mono); font-size: 9px; letter-spacing: 0.08em; color: var(--text-muted); line-height: 1.5; }
+
+
+/* ------------------------------------------------------------------------
+   RIGHT PANEL SPACING FIX
+   -------------------------------------------------------------------- */
+
+.auth-form-section { gap: 16px; }
+.auth-form-section .btn--primary,
+.auth-form-section .btn--google { margin-top: 4px; }
+.auth-form-section .field-group { gap: 6px; }
+.auth-hero { overflow-y: auto; }
+
+@media (max-width: 860px) {
+    .bento-grid { grid-template-columns: 1fr; max-width: 100%; }
+    .how-strip  { max-width: 100%; }
+}
