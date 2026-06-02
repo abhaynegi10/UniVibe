@@ -50,7 +50,6 @@
                 <!-- 4-card bento trust grid -->
                 <div class="bento-grid">
                     <div class="bento-card">
-                        <span class="bento-icon">🔒</span>
                         <strong class="bento-title">Private by Design</strong>
                         <ul class="bento-list">
                             <li>No public profiles</li>
@@ -60,7 +59,6 @@
                         <span class="bento-caption">Talk. Disconnect. Move on.</span>
                     </div>
                     <div class="bento-card">
-                        <span class="bento-icon">🛡️</span>
                         <strong class="bento-title">Secure Sessions</strong>
                         <ul class="bento-list">
                             <li>Encrypted video streams</li>
@@ -70,7 +68,6 @@
                         <span class="bento-caption">Your privacy is the product.</span>
                     </div>
                     <div class="bento-card">
-                        <span class="bento-icon">👥</span>
                         <strong class="bento-title">Verified Humans</strong>
                         <ul class="bento-list">
                             <li>Google Sign-In required</li>
@@ -80,7 +77,6 @@
                         <span class="bento-caption">Real accounts. Real people.</span>
                     </div>
                     <div class="bento-card bento-card--live">
-                        <span class="bento-icon">📡</span>
                         <strong class="bento-title">Live Network</strong>
                         <div class="bento-table">
                             <div class="bento-tr">
@@ -477,14 +473,23 @@
         // ── Auth tab management ──────────────────────────────────────
         const tabRegister = document.getElementById('show-register');
         const tabLogin    = document.getElementById('show-login');
+        const regSection  = document.getElementById('register-section');
+        const logSection  = document.getElementById('login-section');
 
         function setTab(active) {
             tabRegister.classList.toggle('active', active === 'register');
             tabLogin.classList.toggle('active',    active === 'login');
+            // Show/hide the correct form section
+            if (regSection) regSection.style.display = active === 'register' ? 'flex' : 'none';
+            if (logSection) logSection.style.display = active === 'login'    ? 'flex' : 'none';
         }
 
-        tabRegister.addEventListener('click', () => setTab('register'));
-        tabLogin.addEventListener('click',    () => setTab('login'));
+        // Initialise to whichever tab has the active class on page load
+        const initActive = tabRegister.classList.contains('active') ? 'register' : 'login';
+        setTab(initActive);
+
+        tabRegister.addEventListener('click', (e) => { e.preventDefault(); setTab('register'); });
+        tabLogin.addEventListener('click',    (e) => { e.preventDefault(); setTab('login'); });
 
         // ── Dashboard preference toggle buttons ──────────────────────
         document.querySelectorAll('.toggle-btn').forEach(btn => {

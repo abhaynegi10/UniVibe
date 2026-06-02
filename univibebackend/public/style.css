@@ -1825,3 +1825,47 @@ body.dark-mode .auth-tab.active {
 .footnotes { margin-top: 6px !important; gap: 14px !important; }
 .footnotes span { font-size: 7px !important; opacity: 0.45 !important; }
 .ink-rule { opacity: 0.4 !important; }
+
+
+/* ── BENTO CARD FONT INCREASE + VISUAL SEPARATION FIX ───────────────── */
+
+/* Bigger, cleaner bento titles */
+.bento-title {
+    font-size: 12px !important;
+    font-family: var(--ff-mono) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: var(--text) !important;
+    margin-bottom: 5px !important;
+    display: block !important;
+}
+
+/* Bigger bullet list text */
+.bento-list li {
+    font-size: 11px !important;
+    line-height: 1.55 !important;
+}
+
+/* Bigger caption */
+.bento-caption {
+    font-size: 9px !important;
+    margin-top: 5px !important;
+}
+
+/* Proper gap between cards so titles dont touch the card above */
+.bento-grid {
+    gap: 8px !important;
+}
+
+/* Each card: enough padding so title has visual breathing room from the border */
+.bento-card {
+    padding: 11px 13px 10px !important;
+    gap: 0 !important;   /* use margins on children instead */
+}
+
+/* Title at very top of card — add top padding for clear separation */
+.bento-card .bento-title {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
