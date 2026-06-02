@@ -1476,3 +1476,224 @@ body.in-chat #logged-in-view { display: none !important; }
     .bento-grid { grid-template-columns: 1fr; max-width: 100%; }
     .how-strip  { max-width: 100%; }
 }
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   STITCH DESIGN OVERRIDES — v3
+   Match the Stitch reference screenshot exactly
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Fix body overflow so the page doesn't clip at 100% zoom */
+body {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* Auth container: both columns fill viewport height and scroll independently */
+#auth-container {
+    min-height: 100vh;
+    overflow: visible !important;
+}
+#auth-container[style*="block"] {
+    display: grid !important;
+    grid-template-columns: 55fr 45fr;
+    align-items: stretch;
+}
+
+/* LEFT HERO — full viewport height, scrollable */
+.auth-hero {
+    flex: unset !important;
+    min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 44px 52px 52px;
+    border-right: var(--border);
+}
+
+/* Headline: uppercase like Stitch */
+.auth-hero__headline { margin-bottom: 20px; }
+.hl-line { text-transform: uppercase; }
+
+/* Bold callout sub-headline */
+.auth-hero__callout {
+    font-family: var(--ff-hl);
+    font-weight: 800;
+    font-size: clamp(13px, 1.6vw, 19px);
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 10px;
+    max-width: 420px;
+}
+
+/* Small descriptive text */
+.auth-hero__sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 360px;
+    margin-bottom: 20px;
+}
+
+/* Live counter closer to sub text */
+.live-counter { margin-bottom: 4px; }
+
+/* Bento grid: slightly smaller so it fits better */
+.bento-grid {
+    margin-top: 20px;
+    gap: 8px;
+}
+.bento-card { padding: 13px 14px 12px; gap: 6px; }
+.bento-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+.bento-list li { font-size: 10.5px; }
+.bento-icon { font-size: 14px; }
+
+/* Live Network data-table */
+.bento-table { display: flex; flex-direction: column; gap: 5px; }
+.bento-tr {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+.bento-td-key {
+    font-family: var(--ff-mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.bento-td-val {
+    font-family: var(--ff-hl);
+    font-weight: 800;
+    font-size: 16px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+}
+.bento-card--live .bento-td-val { color: var(--ember); }
+
+/* How strip: smaller and more compact */
+.how-strip {
+    margin-top: 16px;
+    padding: 10px 14px;
+    gap: 6px;
+}
+.how-step { font-size: 11px; gap: 5px; }
+.how-num { width: 17px; height: 17px; font-size: 8px; }
+.how-arrow { font-size: 10px; }
+
+/* RIGHT PANEL — background column (same bg, no fill) */
+.auth-panel {
+    flex: unset !important;
+    background: var(--bg) !important;
+    border-left: var(--border);
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 52px 40px;
+    min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* THE FLOATING CARD */
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--bg);
+    border: var(--border);
+    box-shadow: var(--sh-lg);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+body.dark-mode .auth-card { box-shadow: 6px 6px 0 rgba(245,240,234,0.5); }
+
+/* BOXED TAB STYLE — like Stitch */
+.auth-tabs {
+    display: flex;
+    border-bottom: var(--border);
+    margin-bottom: 0;
+    gap: 0;
+}
+.auth-tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 10px;
+    font-family: var(--ff-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    border-right: var(--border);
+    border-bottom: none;
+    margin-bottom: 0;
+    cursor: pointer;
+    transition: background var(--t), color var(--t);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.auth-tab:last-child { border-right: none; }
+.auth-tab.active {
+    background: var(--ink);
+    color: var(--parchment);
+    border-bottom: none;
+}
+body.dark-mode .auth-tab.active {
+    background: var(--parchment);
+    color: var(--ink);
+}
+
+/* Form sections get padding inside the card */
+.auth-form-section {
+    padding: 24px 28px 20px;
+    gap: 14px;
+    flex: 1;
+}
+
+/* Divider inside card */
+.auth-divider {
+    margin: 8px 0;
+}
+
+/* Feature badges — 2-column grid at bottom of card */
+.feature-badges {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
+    margin-top: 0 !important;
+    padding: 14px 28px;
+    border-top: 1px solid var(--border-col);
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--border-col);
+    opacity: 1;
+}
+.fbadge {
+    font-family: var(--ff-mono);
+    font-size: 8px;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+/* Make auth-hero__body center content better */
+.auth-hero__body {
+    padding: 24px 0;
+    justify-content: flex-start;
+}
+
+@media (max-width: 900px) {
+    #auth-container[style*="block"] { grid-template-columns: 1fr !important; }
+    .auth-panel { height: auto; min-height: auto; }
+    .auth-hero { height: auto; }
+}
