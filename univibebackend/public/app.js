@@ -73,6 +73,7 @@ const loggedInPreferenceSpan = document.getElementById('logged-in-preference');
 const socketStatusSpan = document.getElementById('socket-status');
 const chatStatusSpan = document.getElementById('chat-status');
 const startChatButton = document.getElementById('start-chat-button');
+const stopSearchingButton = document.getElementById('stop-searching-button');
 const skipButton = document.getElementById('skip-button');
 const logoutButton = document.getElementById('logout-button');
 const statusMessageDiv = document.getElementById('status-message');
@@ -245,14 +246,15 @@ function resetChatUI(mode = 'idle') {
     switch (mode) {
         case 'searching':
             if (startChatButton) startChatButton.style.display = 'none';
+            if (stopSearchingButton) stopSearchingButton.style.display = 'inline-block';
             if (skipButton) {
                 skipButton.style.display = 'inline-block';
                 skipButton.textContent = "Stop Searching";
             }
             updateMediaButtonsState(!!localStream);
-            // --- MODIFICATION: Add 'in-chat' class to show controls bar ---
-            bodyElement.classList.add('in-chat');
-            console.log("resetChatUI ('searching'): Added 'in-chat' class to body.");
+            // Do NOT add 'in-chat' class here — user stays on the dashboard
+            bodyElement.classList.remove('in-chat');
+            console.log("resetChatUI ('searching'): Staying on dashboard while searching.");
             break;
 
         case 'in-chat':
@@ -276,6 +278,7 @@ function resetChatUI(mode = 'idle') {
                 // Start button enabled only if socket is connected AND media stream exists
                 startChatButton.disabled = !(socket && socket.connected && localStream);
             }
+            if (stopSearchingButton) stopSearchingButton.style.display = 'none';
             if (skipButton) skipButton.style.display = 'none';
             updateMediaButtonsState(!!localStream);
             // 'in-chat' class is removed by the check at the top of the function
@@ -1127,6 +1130,7 @@ showLoginLink?.addEventListener('click', (e) => { e.preventDefault(); showView('
 showRegisterLink?.addEventListener('click', (e) => { e.preventDefault(); showView('register'); });
 startChatButton?.addEventListener('click', handleStartChat);
 skipButton?.addEventListener('click', handleSkipOrStop);
+stopSearchingButton?.addEventListener('click', handleSkipOrStop);
 themeToggleButton?.addEventListener('click', toggleTheme);
 muteButton?.addEventListener('click', toggleAudio);
 videoToggleButton?.addEventListener('click', toggleVideo);

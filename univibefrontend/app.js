@@ -73,6 +73,7 @@ const loggedInPreferenceSpan = document.getElementById('logged-in-preference');
 const socketStatusSpan = document.getElementById('socket-status');
 const chatStatusSpan = document.getElementById('chat-status');
 const startChatButton = document.getElementById('start-chat-button');
+const stopSearchingButton = document.getElementById('stop-searching-button');
 const skipButton = document.getElementById('skip-button');
 const logoutButton = document.getElementById('logout-button');
 const statusMessageDiv = document.getElementById('status-message');
@@ -245,14 +246,15 @@ function resetChatUI(mode = 'idle') {
     switch (mode) {
         case 'searching':
             if (startChatButton) startChatButton.style.display = 'none';
+            if (stopSearchingButton) stopSearchingButton.style.display = 'inline-block';
             if (skipButton) {
                 skipButton.style.display = 'inline-block';
                 skipButton.textContent = "Stop Searching";
             }
             updateMediaButtonsState(!!localStream);
-            // --- MODIFICATION: Add 'in-chat' class to show controls bar ---
-            bodyElement.classList.add('in-chat');
-            console.log("resetChatUI ('searching'): Added 'in-chat' class to body.");
+            // Do NOT add 'in-chat' class here — user stays on the dashboard
+            bodyElement.classList.remove('in-chat');
+            console.log("resetChatUI ('searching'): Staying on dashboard while searching.");
             break;
 
         case 'in-chat':
@@ -276,6 +278,7 @@ function resetChatUI(mode = 'idle') {
                 // Start button enabled only if socket is connected AND media stream exists
                 startChatButton.disabled = !(socket && socket.connected && localStream);
             }
+            if (stopSearchingButton) stopSearchingButton.style.display = 'none';
             if (skipButton) skipButton.style.display = 'none';
             updateMediaButtonsState(!!localStream);
             // 'in-chat' class is removed by the check at the top of the function
@@ -1127,6 +1130,7 @@ showLoginLink?.addEventListener('click', (e) => { e.preventDefault(); showView('
 showRegisterLink?.addEventListener('click', (e) => { e.preventDefault(); showView('register'); });
 startChatButton?.addEventListener('click', handleStartChat);
 skipButton?.addEventListener('click', handleSkipOrStop);
+stopSearchingButton?.addEventListener('click', handleSkipOrStop);
 themeToggleButton?.addEventListener('click', toggleTheme);
 muteButton?.addEventListener('click', toggleAudio);
 videoToggleButton?.addEventListener('click', toggleVideo);
@@ -1272,6 +1276,47 @@ document.addEventListener('DOMContentLoaded', () => {
                     micToggleBtn.classList.toggle('active', audioTrack.enabled);
                     micToggleBtn.textContent = audioTrack.enabled ? '✓ MIC' : '✗ MIC';
                     micToggleBtn.style.color = audioTrack.enabled ? 'var(--text)' : 'var(--ember)';
+                }
+            }
+        });
+    }
+});
+
+// ==================================================
+// --- Change Username Logic ---
+// ==================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const usernameChip = document.getElementById('username-chip');
+    if (usernameChip) {
+        usernameChip.addEventListener('click', async () => {
+            const currentUsername = loggedInUsernameSpan ? loggedInUsernameSpan.textContent : '';
+            const newUsername = prompt("Enter a new username (min 3 characters):", currentUsername);
+            
+            if (newUsername && newUsername.trim() !== currentUsername && newUsername.trim().length >= 3) {
+                const token = localStorage.getItem('authToken');
+                try {
+                    showStatusMessage('Updating username...', false);
+                    const response = await fetch(`${API_BASE_URL}/username`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ username: newUsername.trim() })
+                    });
+                    
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || `HTTP ${response.status}`);
+                    }
+                    
+                    // Update UI and LocalStorage
+                    if (loggedInUsernameSpan) loggedInUsernameSpan.textContent = data.user.username;
+                    localStorage.setItem('authUser', JSON.stringify(data.user));
+                    showStatusMessage('Username updated successfully!', false);
+                } catch (err) {
+                    console.error('Update username error:', err);
+                    showStatusMessage(`Failed to update username: ${err.message}`, true);
                 }
             }
         });
