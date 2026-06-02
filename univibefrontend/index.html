@@ -37,34 +37,97 @@
                     <span class="hl-line">Someone</span>
                     <span class="hl-line hl-accent">Real.</span>
                 </div>
+                <p class="auth-hero__callout">No feeds.<br>No followers.<br>Just conversations.</p>
                 <p class="auth-hero__sub">
-                    A stranger is just someone you haven't talked to yet.
-                    Video chat, for real conversations.
+                    Anonymous video conversations.
+                    Built for genuine human connection.
                 </p>
                 <div class="live-counter">
                     <span class="live-dot"></span>
                     <span class="live-counter__text" id="auth-online-count">— people online right now</span>
+                </div>
+
+                <!-- 4-card bento trust grid -->
+                <div class="bento-grid">
+                    <div class="bento-card">
+                        <strong class="bento-title">Private by Design</strong>
+                        <ul class="bento-list">
+                            <li>No public profiles</li>
+                            <li>No follower counts</li>
+                            <li>No permanent history</li>
+                        </ul>
+                        <span class="bento-caption">Talk. Disconnect. Move on.</span>
+                    </div>
+                    <div class="bento-card">
+                        <strong class="bento-title">Secure Sessions</strong>
+                        <ul class="bento-list">
+                            <li>Encrypted video streams</li>
+                            <li>Google authenticated</li>
+                            <li>No data sold, ever</li>
+                        </ul>
+                        <span class="bento-caption">Your privacy is the product.</span>
+                    </div>
+                    <div class="bento-card">
+                        <strong class="bento-title">Verified Humans</strong>
+                        <ul class="bento-list">
+                            <li>Google Sign-In required</li>
+                            <li>Preference-based matching</li>
+                            <li>No anonymous bots</li>
+                        </ul>
+                        <span class="bento-caption">Real accounts. Real people.</span>
+                    </div>
+                    <div class="bento-card bento-card--live">
+                        <strong class="bento-title">Live Network</strong>
+                        <div class="bento-table">
+                            <div class="bento-tr">
+                                <span class="bento-td-key">USERS ONLINE:</span>
+                                <span class="bento-td-val" id="auth-online-count-2">—</span>
+                            </div>
+                            <div class="bento-tr">
+                                <span class="bento-td-key">MATCHES TODAY:</span>
+                                <span class="bento-td-val" id="bento-matches">1,247</span>
+                            </div>
+                            <div class="bento-tr">
+                                <span class="bento-td-key">COUNTRIES ACTIVE:</span>
+                                <span class="bento-td-val">12</span>
+                            </div>
+                        </div>
+                        <span class="bento-caption live-pulse">Updated in real-time</span>
+                    </div>
+                </div>
+
+                <!-- How It Works strip -->
+                <div class="how-strip">
+                    <span class="how-step"><span class="how-num">1</span>Sign In</span>
+                    <span class="how-arrow">→</span>
+                    <span class="how-step"><span class="how-num">2</span>Set Preferences</span>
+                    <span class="how-arrow">→</span>
+                    <span class="how-step"><span class="how-num">3</span>Match Instantly</span>
+                    <span class="how-arrow">→</span>
+                    <span class="how-step"><span class="how-num">4</span>Start Talking</span>
                 </div>
             </div>
 
             <div class="auth-hero__footer">
                 <hr class="ink-rule">
                 <div class="footnotes">
-                    <span>UNIVIBE PROTOCOL v2.1</span>
-                    <span>ANONYMOUS BY DESIGN</span>
-                    <span>NO RECORDINGS</span>
+                    <span>PRIVACY FIRST</span>
+                    <span>ENCRYPTED CONNECTIONS</span>
+                    <span>NO PUBLIC PROFILES</span>
+                    <span>NO DATA SOLD</span>
                 </div>
             </div>
         </div>
 
         <!-- Right: auth panel -->
         <div class="auth-panel">
+            <div class="auth-card">
 
-            <!-- Tab navigation (uses existing show-login / show-register IDs) -->
-            <div class="auth-tabs">
-                <a href="#" id="show-register" class="auth-tab active">Create account</a>
-                <a href="#" id="show-login" class="auth-tab">Sign in</a>
-            </div>
+                <!-- Tab navigation -->
+                <div class="auth-tabs">
+                    <a href="#" id="show-login" class="auth-tab">Sign In</a>
+                    <a href="#" id="show-register" class="auth-tab active">Create Account</a>
+                </div>
 
             <!-- ── Register form ── -->
             <div id="register-section" class="auth-form-section">
@@ -99,7 +162,7 @@
                     <button type="submit" class="btn btn--primary btn--full">Create Account</button>
                 </form>
 
-                <div class="auth-divider"><span>or</span></div>
+                <div class="auth-divider"><span>or authenticate via</span></div>
 
                 <a href="/api/auth/google" class="btn btn--google btn--full" id="google-signup-btn">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
@@ -121,7 +184,7 @@
                     <button type="submit" class="btn btn--primary btn--full">Sign In</button>
                 </form>
 
-                <div class="auth-divider"><span>or</span></div>
+                <div class="auth-divider"><span>or authenticate via</span></div>
 
                 <a href="/api/auth/google" class="btn btn--google btn--full" id="google-login-btn">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
@@ -129,7 +192,16 @@
                 </a>
             </div>
 
-        </div>
+                <!-- Feature badges — 2-col grid inside card -->
+                <div class="feature-badges">
+                    <span class="fbadge">✓ End-to-End Encrypted</span>
+                    <span class="fbadge">✓ Google Verified Users</span>
+                    <span class="fbadge">✓ Preference-Based Matching</span>
+                    <span class="fbadge">✓ Free to Use</span>
+                </div>
+
+            </div><!-- /.auth-card -->
+        </div><!-- /.auth-panel -->
     </div>
 
 
@@ -173,64 +245,17 @@
                         <p id="preview-status" class="preview-message">Checking camera...</p>
                     </div>
 
-                    <!-- Status chips -->
-                    <div class="media-chips">
-                        <span class="media-chip" id="cam-chip">📷 CAM</span>
-                        <span class="media-chip" id="mic-chip">🎤 MIC</span>
-                        <span class="media-chip meta-chip">
-                            <span class="meta-key">GENDER</span>
-                            <span id="logged-in-gender" class="meta-val">—</span>
-                        </span>
-                        <span class="media-chip meta-chip">
-                            <span class="meta-key">SHOW</span>
-                            <span id="logged-in-preference" class="meta-val">—</span>
-                        </span>
+                    <!-- Status inline -->
+                    <div class="media-chips-inline" style="display: flex; gap: 12px; margin-top: 10px; padding: 0 4px; align-items: center;">
+                        <span id="cam-chip" style="font-family: var(--ff-mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text);">✓ CAM</span>
+                        <span id="mic-chip" style="font-family: var(--ff-mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text);">✓ MIC</span>
+                        <span id="socket-status-inline" style="margin-left: auto; font-family: var(--ff-mono); font-size: 9px; letter-spacing: 0.1em; color: var(--ember); font-weight: 700;">CONNECTED</span>
                     </div>
 
                     <!-- Start button -->
-                    <button id="start-chat-button" class="btn btn--primary btn--full btn--lg" disabled>
-                        Start Chatting →
+                    <button id="start-chat-button" class="btn btn--primary btn--full btn--lg" disabled style="margin-top: 16px;">
+                        START CHATTING →
                     </button>
-                </div>
-
-                <hr class="ink-rule rooms-divider">
-
-                <!-- ── Rooms Section ────────────────────────────── -->
-                <div class="rooms-section" id="rooms-section">
-                    <div class="rooms-section__head">
-                        <span>Rooms</span>
-                        <div class="head-rule"></div>
-                        <span class="rooms-badge">PRIVATE 1-to-1</span>
-                    </div>
-
-                    <!-- Default state: create or join -->
-                    <div id="room-default-state" class="room-state">
-                        <button id="create-room-btn" class="btn btn--outline btn--full">
-                            + Create a Room
-                        </button>
-                        <div class="auth-divider"><span>or join one</span></div>
-                        <div class="room-join-row">
-                            <input type="text" id="room-code-input" class="field-input room-code-field"
-                                   placeholder="ABC123" maxlength="6" autocomplete="off" spellcheck="false">
-                            <button id="join-room-btn" class="btn btn--primary">Join →</button>
-                        </div>
-                    </div>
-
-                    <!-- Waiting state: after creating a room -->
-                    <div id="room-waiting-state" class="room-state" style="display:none">
-                        <div class="room-code-display">
-                            <label class="field-label">YOUR ROOM CODE</label>
-                            <div class="room-code-chip">
-                                <span id="room-code-value" class="room-code-num">——————</span>
-                                <button id="copy-room-link-btn" class="btn btn--ghost btn--sm">Copy Link</button>
-                            </div>
-                        </div>
-                        <div class="room-waiting-row">
-                            <span class="live-dot"></span>
-                            <span id="room-waiting-text" class="room-waiting-label">Waiting for someone to join...</span>
-                        </div>
-                        <button id="cancel-room-btn" class="btn btn--outline btn--sm">Cancel Room</button>
-                    </div>
                 </div>
             </div>
 
@@ -242,38 +267,58 @@
                         <span>Preferences</span>
                         <div class="head-rule"></div>
                     </div>
+                    <div class="pref-group" style="margin-bottom: 24px;">
+                        <label class="field-label">YOUR GENDER</label>
+                        <div class="toggle-group" id="gender-toggle-group">
+                            <button class="toggle-btn-gender active" data-value="male">Male</button>
+                            <button class="toggle-btn-gender" data-value="female">Female</button>
+                            <button class="toggle-btn-gender" data-value="other">Other</button>
+                        </div>
+                    </div>
                     <div class="pref-group">
                         <label class="field-label">SHOW ME</label>
                         <div class="toggle-group" id="pref-toggle-group">
-                            <button class="toggle-btn active" data-value="any">Any</button>
-                            <button class="toggle-btn" data-value="male">Male</button>
+                            <button class="toggle-btn active" data-value="male">Male</button>
                             <button class="toggle-btn" data-value="female">Female</button>
+                            <button class="toggle-btn" data-value="any">Any</button>
                         </div>
                     </div>
                 </div>
 
                 <hr class="ink-rule">
 
-                <div class="sidebar-block">
+                <!-- ── Rooms Section (Sidebar) ────────────────────────────── -->
+                <div class="sidebar-block" id="rooms-section">
                     <div class="sidebar-block__head">
-                        <span>Activity</span>
+                        <span>CREATE ROOM</span>
                         <div class="head-rule"></div>
                     </div>
-                    <div class="stats-grid">
-                        <div class="stat">
-                            <span class="stat__num" id="stat-count">1,247</span>
-                            <span class="stat__lbl">chats today</span>
+
+                    <!-- Default state: create or join -->
+                    <div id="room-default-state" class="room-state">
+                        <div class="room-join-row" style="margin-bottom: 8px;">
+                            <input type="text" id="room-code-input" class="field-input room-code-field"
+                                   placeholder="ENTER ROOM NAME..." maxlength="12" autocomplete="off" spellcheck="false" style="text-transform: uppercase;">
                         </div>
-                        <div class="stat">
-                            <span class="stat__num">4:32</span>
-                            <span class="stat__lbl">avg. duration</span>
-                        </div>
+                        <button id="join-room-btn" class="btn btn--primary btn--full" style="background: var(--ember); border: 2px solid var(--ink); color: var(--parchment);">
+                            CREATE OR JOIN
+                        </button>
                     </div>
-                    <div class="activity-bar-wrap">
-                        <div class="activity-bar">
-                            <div class="activity-bar__fill" style="width:68%"></div>
+
+                    <!-- Waiting state: after creating a room -->
+                    <div id="room-waiting-state" class="room-state" style="display:none">
+                        <div class="room-code-display">
+                            <label class="field-label">YOUR ROOM CODE</label>
+                            <div class="room-code-chip">
+                                <span id="room-code-value" class="room-code-num">——————</span>
+                                <button id="copy-room-link-btn" class="btn btn--ghost btn--sm">Copy</button>
+                            </div>
                         </div>
-                        <span class="activity-lbl">CURRENT ACTIVITY</span>
+                        <div class="room-waiting-row">
+                            <span class="live-dot"></span>
+                            <span id="room-waiting-text" class="room-waiting-label">Waiting...</span>
+                        </div>
+                        <button id="cancel-room-btn" class="btn btn--outline btn--sm btn--full" style="margin-top: 8px;">Cancel</button>
                     </div>
                 </div>
 
@@ -401,14 +446,23 @@
         // ── Auth tab management ──────────────────────────────────────
         const tabRegister = document.getElementById('show-register');
         const tabLogin    = document.getElementById('show-login');
+        const regSection  = document.getElementById('register-section');
+        const logSection  = document.getElementById('login-section');
 
         function setTab(active) {
             tabRegister.classList.toggle('active', active === 'register');
             tabLogin.classList.toggle('active',    active === 'login');
+            // Show/hide the correct form section
+            if (regSection) regSection.style.display = active === 'register' ? 'flex' : 'none';
+            if (logSection) logSection.style.display = active === 'login'    ? 'flex' : 'none';
         }
 
-        tabRegister.addEventListener('click', () => setTab('register'));
-        tabLogin.addEventListener('click',    () => setTab('login'));
+        // Initialise to whichever tab has the active class on page load
+        const initActive = tabRegister.classList.contains('active') ? 'register' : 'login';
+        setTab(initActive);
+
+        tabRegister.addEventListener('click', (e) => { e.preventDefault(); setTab('register'); });
+        tabLogin.addEventListener('click',    (e) => { e.preventDefault(); setTab('login'); });
 
         // ── Dashboard preference toggle buttons ──────────────────────
         document.querySelectorAll('.toggle-btn').forEach(btn => {
@@ -416,10 +470,16 @@
                 document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const val = btn.dataset.value;
-                const prefSpan = document.getElementById('logged-in-preference');
-                if (prefSpan) prefSpan.textContent = val;
-                const sel = document.getElementById('modal-preference-select');
-                if (sel) sel.value = val;
+                // update global app state or API if needed
+            });
+        });
+
+        document.querySelectorAll('.toggle-btn-gender').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.toggle-btn-gender').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const val = btn.dataset.value;
+                // update global app state or API if needed
             });
         });
 
