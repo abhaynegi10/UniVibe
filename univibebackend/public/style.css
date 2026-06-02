@@ -1871,3 +1871,19 @@ body.dark-mode .auth-tab.active {
 }
 
 
+
+
+/* ── FORM FIELD SPACING FIX ─────────────────────────────────────── */
+
+/* Make the form a flex container so it can have a gap between fields */
+.auth-form-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+/* Ensure field groups take full width */
+.field-group {
+    width: 100%;
+}
