@@ -1697,3 +1697,48 @@ body.dark-mode .auth-tab.active {
     .auth-panel { height: auto; min-height: auto; }
     .auth-hero { height: auto; }
 }
+
+
+/* ── AUTH CARD SIZE & BUTTON SPACING FIX ─────────────────────────────── */
+
+/* Bigger card */
+.auth-card {
+    max-width: 460px;
+}
+
+/* More padding inside the form area */
+.auth-form-section {
+    padding: 28px 32px 24px;
+    gap: 18px;
+}
+
+/* Taller inputs */
+.auth-form-section .field-input {
+    padding: 13px 14px;
+    font-size: 14px;
+}
+
+/* Primary button: bigger & bolder */
+.auth-form-section .btn--primary {
+    padding: 15px 20px;
+    font-size: 15px;
+    margin-top: 6px;
+}
+
+/* Divider: more breathing room */
+.auth-divider {
+    margin: 14px 0 !important;
+}
+
+/* Google button: bigger */
+.auth-form-section .btn--google {
+    padding: 13px 20px;
+    font-size: 14px;
+    margin-top: 0;
+}
+
+/* Badges section: slightly more padding */
+.feature-badges {
+    padding: 16px 32px;
+    gap: 6px 20px;
+}
