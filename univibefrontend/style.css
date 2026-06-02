@@ -2098,3 +2098,20 @@ body.dark-mode #mic-toggle-btn {
         margin: 0 !important; /* Let flex centering handle it */
     }
 }
+
+/* ── "YOU" BADGE & CAMERA FIT OVERRIDES ───────────────────────────── */
+.preview-frame__label {
+    top: -12px !important;
+    left: 8px !important;
+    padding: 2px 6px !important;
+    font-size: 8px !important;
+    border: 2px solid var(--ink) !important;
+    border-bottom: none !important;
+    border-radius: 4px 4px 0 0 !important;
+    z-index: 10;
+}
+#previewVideo {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+}

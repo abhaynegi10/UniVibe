@@ -130,4 +130,42 @@ router.post('/token-exchange', (req, res) => {
     res.json({ success: true, token, user });
 });
 
+// ============================================================
+// UPDATE USERNAME ROUTE
+// ============================================================
+// PUT /api/auth/username
+router.put('/username', protect, async (req, res) => {
+    try {
+        const { username } = req.body;
+        
+        if (!username || username.trim().length < 3) {
+            return res.status(400).json({ success: false, message: 'Username must be at least 3 characters long.' });
+        }
+
+        // Check if username is already taken by someone else
+        const existingUser = await User.findOne({ username: username.trim() });
+        if (existingUser && existingUser._id.toString() !== req.user._id.toString()) {
+            return res.status(400).json({ success: false, message: 'Username is already taken.' });
+        }
+
+        // Update username
+        req.user.username = username.trim();
+        await req.user.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Username updated successfully!',
+            user: {
+                _id: req.user._id,
+                username: req.user.username,
+                gender: req.user.gender,
+                preference: req.user.preference
+            }
+        });
+    } catch (err) {
+        console.error('Update username error:', err);
+        res.status(500).json({ success: false, message: 'Server error while updating username.' });
+    }
+});
+
 module.exports = router;

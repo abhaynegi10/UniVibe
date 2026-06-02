@@ -1277,3 +1277,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ==================================================
+// --- Change Username Logic ---
+// ==================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const usernameChip = document.getElementById('username-chip');
+    if (usernameChip) {
+        usernameChip.addEventListener('click', async () => {
+            const currentUsername = loggedInUsernameSpan ? loggedInUsernameSpan.textContent : '';
+            const newUsername = prompt("Enter a new username (min 3 characters):", currentUsername);
+            
+            if (newUsername && newUsername.trim() !== currentUsername && newUsername.trim().length >= 3) {
+                const token = localStorage.getItem('authToken');
+                try {
+                    showStatusMessage('Updating username...', false);
+                    const response = await fetch(`${API_BASE_URL}/username`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ username: newUsername.trim() })
+                    });
+                    
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || `HTTP ${response.status}`);
+                    }
+                    
+                    // Update UI and LocalStorage
+                    if (loggedInUsernameSpan) loggedInUsernameSpan.textContent = data.user.username;
+                    localStorage.setItem('authUser', JSON.stringify(data.user));
+                    showStatusMessage('Username updated successfully!', false);
+                } catch (err) {
+                    console.error('Update username error:', err);
+                    showStatusMessage(`Failed to update username: ${err.message}`, true);
+                }
+            }
+        });
+    }
+});
