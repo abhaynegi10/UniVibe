@@ -524,6 +524,10 @@ function handleTrackEvent(event) {
             console.log('!!! Video track added to srcObject !!!');
             remoteVideo.style.border = '3px solid lime';
             setTimeout(() => { if (remoteVideo) remoteVideo.style.border = 'none'; }, 3000); // Remove border after 3s
+            
+            // Hide the "CONNECTING VIDEO..." overlay
+            const noFeedOverlay = document.querySelector('.video-no-feed');
+            if (noFeedOverlay) noFeedOverlay.style.display = 'none';
         }
         // ---- END TEMPORARY DEBUGGING BORDER ----
 
@@ -686,6 +690,10 @@ function resetChatState() {
         remoteVideo.srcObject = null;
         console.log("Cleared remote video stream.");
     }
+    const remoteLabel = document.querySelector('.video-label');
+    if (remoteLabel) remoteLabel.textContent = 'STRANGER';
+    const noFeedOverlay = document.querySelector('.video-no-feed');
+    if (noFeedOverlay) noFeedOverlay.style.display = 'flex';
 
     // Do NOT stop localStream here, let user control that via logout or maybe a separate button
     // Just ensure UI is back to idle and preview is potentially running
@@ -817,7 +825,7 @@ function setupSocketListeners() {
     });
     // --------------------------------------------------------------
 
-    socket.on('match-found', ({ peerId, initiator }) => {
+    socket.on('match-found', ({ peerId, peerUsername, initiator }) => {
         // --- Add the console error log here for visibility ---
         console.error("!!!!!!!! MATCH FOUND EVENT RECEIVED !!!!!!!!"); // Make it stand out
         console.log(`Match details: Peer=${peerId}, Initiator=${initiator}`);
@@ -827,6 +835,9 @@ function setupSocketListeners() {
         currentPeerId = peerId;
         isWebRTCInitiator = initiator;
         updateChatStatus(`Matched! Starting video...`);
+        
+        const remoteLabel = document.querySelector('.video-label');
+        if (remoteLabel) remoteLabel.textContent = peerUsername || 'STRANGER';
 
         // --- Log before/after critical UI/WebRTC calls ---
         console.log(">>> Calling showView('in-chat')...");

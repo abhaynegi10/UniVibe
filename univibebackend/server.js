@@ -1,4 +1,4 @@
-// univibebackend/server.js
+﻿// univibebackend/server.js
 
 const express = require('express');
 const dotenv = require('dotenv');
@@ -111,7 +111,7 @@ io.use(async (socket, next) => {
 
 // --- Socket.IO Connection Handler ---
 io.on('connection', (socket) => {
-    console.log(`âœ… Connect: ${socket.user.username} (${socket.userId}) | ${socket.id}`);
+    console.log(`Ã¢Å“â€¦ Connect: ${socket.user.username} (${socket.userId}) | ${socket.id}`);
 
     // Handle simultaneous connections (keep latest)
     const existingUser = onlineUsers[socket.userId];
@@ -255,7 +255,7 @@ function handleWebRTCSignal(socket, data) {
 function handleDisconnect(socket, reason) {
     const userId = socket.userId;
     const userInfo = onlineUsers[userId];
-    console.log(`ðŸ”» Disconnect: ${socket.user?.username || userId} | ${socket.id} | Reason: ${reason}`);
+    console.log(`Ã°Å¸â€Â» Disconnect: ${socket.user?.username || userId} | ${socket.id} | Reason: ${reason}`);
     if (userInfo) {
         // Room cleanup: notify room partner on disconnect
         if (userInfo.currentRoomId) {
@@ -322,11 +322,11 @@ function findPeerFor(userId) {
         currentUser.isSearching = false; currentUser.currentPeerId = finalPeerId;
         peerUser.isSearching = false; peerUser.currentPeerId = userId;
         const matchType = finalPeerId === preferredMatchId ? "Pref" : "Fall";
-        console.log(`âœ… MATCH (${matchType}): ${currentUser.username} <=> ${peerUser.username}`);
+        console.log(`Ã¢Å“â€¦ MATCH (${matchType}): ${currentUser.username} <=> ${peerUser.username}`);
         const userSocket = io.sockets.sockets.get(currentUser.socketId);
         const peerSocket = io.sockets.sockets.get(peerUser.socketId);
-        if (userSocket) userSocket.emit('match-found', { peerId: finalPeerId, initiator: false });
-        if (peerSocket) peerSocket.emit('match-found', { peerId: userId, initiator: true });
+        if (userSocket) userSocket.emit('match-found', { peerId: finalPeerId, peerUsername: peerUser.username, initiator: false });
+        if (peerSocket) peerSocket.emit('match-found', { peerId: userId, peerUsername: currentUser.username, initiator: true });
     } else {
         console.log(`[Match] User ${currentUser.username} waiting (no suitable match found)...`);
         const userSocket = io.sockets.sockets.get(currentUser.socketId);
@@ -360,7 +360,7 @@ function handleJoinRoom(socket, roomId) {
     const room = rooms[id];
     if (!room) { socket.emit('room-error', { message: `Room "${id}" does not exist.` }); return; }
     if (room.members.length >= 2) { socket.emit('room-error', { message: `Room "${id}" is already full.` }); return; }
-    if (room.members.includes(userId)) { socket.emit('room-error', { message: 'You created this room â€” share the code with a friend.' }); return; }
+    if (room.members.includes(userId)) { socket.emit('room-error', { message: 'You created this room Ã¢â‚¬â€ share the code with a friend.' }); return; }
     room.members.push(userId);
     userInfo.currentRoomId = id;
     const ownerUser = onlineUsers[room.ownerId];
@@ -438,7 +438,7 @@ app.get('/api/turn-credentials', (req, res) => {
     const credential = process.env.TURN_CREDENTIAL;
 
     if (!username || !credential) {
-        // No TURN configured â€” return only STUN (works on same-network calls)
+        // No TURN configured Ã¢â‚¬â€ return only STUN (works on same-network calls)
         return res.json({
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -477,8 +477,9 @@ app.use((req, res) => {
 
 // --- Start Server ---
 const PORT = process.env.PORT || 5001;
-server.listen(PORT, () => console.log(`ðŸš€ Server ready on port ${PORT}`));
+server.listen(PORT, () => console.log(`Ã°Å¸Å¡â‚¬ Server ready on port ${PORT}`));
 
 // --- Graceful Shutdown ---
 process.on('unhandledRejection', (err, promise) => { console.error(`Unhandled Rejection: ${err?.message || err}`, err); server.close(() => process.exit(1)); });
 process.on('SIGTERM', () => { console.log('SIGTERM received. Shutting down.'); server.close(() => { console.log('Server closed.'); process.exit(0); }); setTimeout(() => process.exit(1), 10000); });
+

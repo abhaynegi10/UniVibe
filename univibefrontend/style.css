@@ -2115,3 +2115,23 @@ body.dark-mode #mic-toggle-btn {
     width: 100% !important;
     height: 100% !important;
 }
+
+/* ── Remote Video Adjustments (Padding & Rounded Corners) ── */
+.video-wrapper--remote {
+    padding: 32px !important;
+    box-sizing: border-box !important;
+}
+.video-wrapper--remote video {
+    border-radius: 12px !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+.video-no-feed {
+    border-radius: 12px !important;
+    margin: 32px !important;
+}
+.video-label {
+    left: 48px !important;
+    bottom: 48px !important;
+}
