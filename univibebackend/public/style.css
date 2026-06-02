@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════════════════════════
    UNIVIBE — Neo-Brutalist Design System
    Inspired by editorial print, concrete architecture, and craft.
    ─────────────────────────────────────────────────────────────────────
@@ -501,7 +501,7 @@ body.dark-mode       #theme-toggle-button::before { content: '○'; }
     font-size: 9px;
     letter-spacing: 0.1em;
     color: var(--text-muted);
-    margin: 2px 0;
+    margin: 12px 0;
 }
 .auth-divider::before,
 .auth-divider::after {
@@ -1345,7 +1345,7 @@ body.in-chat #logged-in-view { display: none !important; }
 }
 
 /* ------------------------------------------------------------------------
-   BENTO CARDS � 4-card trust grid on auth hero
+   BENTO CARDS � 4-card trust grid on auth hero
    -------------------------------------------------------------------- */
 
 .bento-grid {
@@ -1390,7 +1390,7 @@ body.in-chat #logged-in-view { display: none !important; }
     padding-left: 10px;
     position: relative;
 }
-.bento-list li::before { content: '�'; position: absolute; left: 0; color: var(--ember); font-weight: 700; }
+.bento-list li::before { content: '�'; position: absolute; left: 0; color: var(--ember); font-weight: 700; }
 
 .bento-caption {
     font-family: var(--ff-mono);
@@ -1446,14 +1446,14 @@ body.in-chat #logged-in-view { display: none !important; }
 
 
 /* ------------------------------------------------------------------------
-   FEATURE BADGES � Below Google login button
+   FEATURE BADGES � Below Google login button
    -------------------------------------------------------------------- */
 
 .feature-badges {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-top: 4px;
+    margin-top: auto;
     padding: 12px 14px;
     border: 1px solid var(--border-col);
     background: var(--bg);
@@ -1466,9 +1466,9 @@ body.in-chat #logged-in-view { display: none !important; }
    RIGHT PANEL SPACING FIX
    -------------------------------------------------------------------- */
 
-.auth-form-section { gap: 16px; }
+.auth-form-section { gap: 20px; }
 .auth-form-section .btn--primary,
-.auth-form-section .btn--google { margin-top: 4px; }
+.auth-form-section .btn--google { margin-top: 0; }
 .auth-form-section .field-group { gap: 6px; }
 .auth-hero { overflow-y: auto; }
 
