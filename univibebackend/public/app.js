@@ -210,7 +210,21 @@ function showView(viewName) {
     }
 }
 
-function showUserInfo(user) { loggedInUsernameSpan.textContent = user.username; loggedInGenderSpan.textContent = user.gender; loggedInPreferenceSpan.textContent = user.preference; }
+function showUserInfo(user) { 
+    if (loggedInUsernameSpan) loggedInUsernameSpan.textContent = user.username; 
+    
+    // Update the segmented toggle buttons to match the user's data
+    if (user.gender) {
+        document.querySelectorAll('.toggle-btn-gender').forEach(b => {
+            b.classList.toggle('active', b.dataset.value === user.gender.toLowerCase());
+        });
+    }
+    if (user.preference) {
+        document.querySelectorAll('.toggle-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.value === user.preference.toLowerCase());
+        });
+    }
+}
 
 function showStatusMessage(message, isError = false) {
     statusMessageDiv.textContent = message; statusMessageDiv.className = 'status'; statusMessageDiv.classList.add(isError ? 'error' : 'success');
