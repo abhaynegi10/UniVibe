@@ -296,13 +296,19 @@
 
                     <!-- Default state: create or join -->
                     <div id="room-default-state" class="room-state">
-                        <div class="room-join-row" style="margin-bottom: 8px;">
-                            <input type="text" id="room-code-input" class="field-input room-code-field"
-                                   placeholder="ENTER ROOM NAME..." maxlength="12" autocomplete="off" spellcheck="false" style="text-transform: uppercase;">
-                        </div>
-                        <button id="join-room-btn" class="btn btn--primary btn--full" style="background: var(--ember); border: 2px solid var(--ink); color: var(--parchment);">
-                            CREATE OR JOIN
+                        <button id="create-room-btn" class="btn btn--primary btn--full" style="background: var(--ember); border: 2px solid var(--ink); color: var(--parchment); margin-bottom: 12px; padding: 12px; font-size: 11px;">
+                            + CREATE NEW ROOM
                         </button>
+                        
+                        <div class="auth-divider" style="margin: 12px 0;"><span>or join existing</span></div>
+                        
+                        <div class="room-join-row" style="display: flex; gap: 8px;">
+                            <input type="text" id="room-code-input" class="field-input room-code-field"
+                                   placeholder="ENTER CODE..." maxlength="12" autocomplete="off" spellcheck="false" style="text-transform: uppercase; flex: 1; padding: 12px;">
+                            <button id="join-room-btn" class="btn btn--primary" style="background: var(--ink); color: var(--parchment); border: 2px solid var(--ink); padding: 0 16px;">
+                                JOIN
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Waiting state: after creating a room -->
