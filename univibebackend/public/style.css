@@ -1390,7 +1390,7 @@ body.in-chat #logged-in-view { display: none !important; }
     padding-left: 10px;
     position: relative;
 }
-.bento-list li::before { content: '�'; position: absolute; left: 0; color: var(--ember); font-weight: 700; }
+.bento-list li::before { content: '\2022'; position: absolute; left: 0; color: var(--ember); font-weight: 700; }
 
 .bento-caption {
     font-family: var(--ff-mono);
@@ -1869,3 +1869,5 @@ body.dark-mode .auth-tab.active {
     padding-top: 0 !important;
     margin-top: 0 !important;
 }
+
+
