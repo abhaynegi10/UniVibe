@@ -362,7 +362,13 @@ async function getMediaPermissions(showPreview = false) { // Add showPreview fla
     if (showPreview) updatePreviewStatus('Requesting access...', false); // Update preview status (not error)
 
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                width: { ideal: 1280 }, 
+                height: { ideal: 720 } 
+            }, 
+            audio: true 
+        });
         console.log("Media permissions granted.");
         localStream = stream; // Assign to global variable
 
