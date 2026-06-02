@@ -1,4 +1,4 @@
-﻿// univibebackend/server.js
+// univibebackend/server.js
 
 const express = require('express');
 const dotenv = require('dotenv');
@@ -299,7 +299,7 @@ function findPeerFor(userId) {
             // Verify socket is actually connected
             const socketExists = io.sockets.sockets.get(candidate.socketId);
             if (!socketExists) {
-                console.log([Ghost Prune] Removing ghost user \ during matchmaking.);
+                console.log(`[Ghost Prune] Removing ghost user ${id} during matchmaking.`);
                 delete onlineUsers[id];
             } else {
                 candidates.push(id);
