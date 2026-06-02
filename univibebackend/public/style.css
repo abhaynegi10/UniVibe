@@ -1742,3 +1742,86 @@ body.dark-mode .auth-tab.active {
     padding: 16px 32px;
     gap: 6px 20px;
 }
+
+
+/* ── NO-SCROLL LEFT HERO — everything fits in 100vh ──────────────────── */
+
+/* Hero column: fixed height, NO scroll */
+.auth-hero {
+    height: 100vh !important;
+    overflow-y: hidden !important;
+    padding: 22px 44px 18px !important;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Wordmark row: smaller margin */
+.auth-hero__top { margin-bottom: 0; }
+
+/* Body: flex with slight centering */
+.auth-hero__body {
+    padding: 8px 0 0 !important;
+    flex: 1;
+    justify-content: flex-start;
+    gap: 0;
+}
+
+/* Headline: smaller so it doesn't dominate too much space */
+.auth-hero__headline { margin-bottom: 10px !important; }
+.hl-line { font-size: clamp(34px, 4.8vw, 66px) !important; line-height: 0.88 !important; }
+
+/* Callout sub-headline: tighter */
+.auth-hero__callout {
+    font-size: clamp(10px, 1.2vw, 14px) !important;
+    margin-bottom: 5px !important;
+    line-height: 1.2 !important;
+}
+
+/* Descriptive text: smaller */
+.auth-hero__sub {
+    font-size: 12px !important;
+    margin-bottom: 8px !important;
+    line-height: 1.55 !important;
+}
+
+/* Live counter: no extra margin */
+.live-counter { margin-bottom: 0 !important; }
+.live-counter__text { font-size: 10px !important; }
+
+/* Bento grid: tight */
+.bento-grid {
+    margin-top: 10px !important;
+    gap: 6px !important;
+    max-width: 100% !important;
+}
+.bento-card {
+    padding: 9px 11px !important;
+    gap: 4px !important;
+}
+.bento-icon { font-size: 12px !important; }
+.bento-title { font-size: 9.5px !important; }
+.bento-list { gap: 1px !important; }
+.bento-list li { font-size: 9px !important; line-height: 1.4 !important; }
+.bento-caption { font-size: 7px !important; margin-top: 2px !important; }
+
+/* Live network table: compact */
+.bento-table { gap: 3px !important; }
+.bento-td-key { font-size: 7.5px !important; }
+.bento-td-val { font-size: 14px !important; }
+
+/* How strip: minimal */
+.how-strip {
+    margin-top: 8px !important;
+    padding: 8px 12px !important;
+    max-width: 100% !important;
+    gap: 5px !important;
+}
+.how-step { font-size: 10px !important; gap: 4px !important; }
+.how-num { width: 15px !important; height: 15px !important; font-size: 7px !important; }
+.how-arrow { font-size: 9px !important; }
+
+/* Footer: push to bottom, smaller */
+.auth-hero__footer { margin-top: auto !important; }
+.footnotes { margin-top: 6px !important; gap: 14px !important; }
+.footnotes span { font-size: 7px !important; opacity: 0.45 !important; }
+.ink-rule { opacity: 0.4 !important; }
