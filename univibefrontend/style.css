@@ -2043,3 +2043,41 @@ body.dark-mode .auth-tab.active {
     padding: 14px;
     font-size: 11px;
 }
+
+/* ── ADDITIONAL UI FIXES ───────────────────────────── */
+
+/* Fix Dark Mode Borders */
+body.dark-mode .preview-frame,
+body.dark-mode .toggle-group,
+body.dark-mode .toggle-btn-gender,
+body.dark-mode .toggle-btn,
+body.dark-mode .room-code-field,
+body.dark-mode .dash-nav__status,
+body.dark-mode #cam-toggle-btn,
+body.dark-mode #mic-toggle-btn {
+    border-color: var(--border-col) !important;
+}
+
+/* Fix Cropped Labels */
+.preview-frame {
+    overflow: visible !important;
+}
+
+/* Center the camera column */
+@media (min-width: 900px) {
+    .dash-main {
+        grid-template-columns: 1fr 1fr !important;
+        justify-items: center !important;
+    }
+    .dash-main__header {
+        grid-column: 1 / -1 !important;
+        width: 100%;
+    }
+    #user-info-box {
+        grid-column: 1 !important;
+        /* It is already width: 360px and margin: 0 auto so it will center */
+    }
+    .rooms-section {
+        grid-column: 2 !important;
+    }
+}

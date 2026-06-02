@@ -1242,3 +1242,38 @@ document.addEventListener('DOMContentLoaded', () => {
     if (videoToggleButton) videoToggleButton.disabled = true;
     console.log("Initial setup complete.");
 });
+// ==================================================
+// --- Camera and Mic Toggles ---
+// ==================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const camToggleBtn = document.getElementById('cam-toggle-btn');
+    const micToggleBtn = document.getElementById('mic-toggle-btn');
+    
+    if (camToggleBtn) {
+        camToggleBtn.addEventListener('click', () => {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    camToggleBtn.classList.toggle('active', videoTrack.enabled);
+                    camToggleBtn.textContent = videoTrack.enabled ? '✓ CAM' : '✗ CAM';
+                    camToggleBtn.style.color = videoTrack.enabled ? 'var(--text)' : 'var(--ember)';
+                }
+            }
+        });
+    }
+
+    if (micToggleBtn) {
+        micToggleBtn.addEventListener('click', () => {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    micToggleBtn.classList.toggle('active', audioTrack.enabled);
+                    micToggleBtn.textContent = audioTrack.enabled ? '✓ MIC' : '✗ MIC';
+                    micToggleBtn.style.color = audioTrack.enabled ? 'var(--text)' : 'var(--ember)';
+                }
+            }
+        });
+    }
+});
