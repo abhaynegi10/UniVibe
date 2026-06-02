@@ -2081,3 +2081,20 @@ body.dark-mode #mic-toggle-btn {
         grid-column: 2 !important;
     }
 }
+
+/* ── OVERRIDE GRID, CENTER LEFT PANEL COMPLETELY ───────────────────────────── */
+
+@media (min-width: 900px) {
+    .dash-main {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
+    .dash-main__header {
+        margin-bottom: 32px;
+    }
+    #user-info-box {
+        margin: 0 !important; /* Let flex centering handle it */
+    }
+}
