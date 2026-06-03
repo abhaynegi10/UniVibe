@@ -2135,3 +2135,19 @@ body.dark-mode #mic-toggle-btn {
     left: 48px !important;
     bottom: 48px !important;
 }
+
+/* ── UI Fixes (Theme Toggle & Skip Button) ── */
+#theme-toggle-button {
+    box-shadow: none !important;
+    border-radius: 6px;
+}
+
+body.dark-mode .btn--skip {
+    border: 2px solid var(--text) !important;
+    box-shadow: none !important;
+    color: var(--text) !important;
+}
+body.dark-mode .btn--skip:hover:not(:disabled) {
+    background: var(--text) !important;
+    color: var(--bg) !important;
+}
