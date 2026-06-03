@@ -1,6 +1,8 @@
 # 🌐 UniVibe - Anonymous Video Chat
 
-**UniVibe** is a web-based anonymous video chat application inspired by platforms like Omegle. It enables users to connect randomly with strangers for one-on-one video and text conversations, with an option to filter based on gender preferences.
+**[Live Demo 🚀](https://univibe-videochat.onrender.com)** *(Note: Replace with your exact Render URL if different)*
+
+**UniVibe** is a modern, web-based anonymous video chat application inspired by platforms like Omegle. It enables users to connect randomly with strangers for one-on-one video and text conversations, featuring high-quality WebRTC video, Google OAuth authentication, and preference-based matching.
 
 ---
 
@@ -63,8 +65,8 @@
 
 ## 📈 Project Status & Future Development
 
-**Current Status:** ✅ Functional in local development.  
-**Core Features Implemented:** User auth, preference-based matching, WebRTC video/audio, basic in-chat controls.
+**Current Status:** ✅ Deployed and Functional.
+**Core Features Implemented:** User auth, preference-based matching, WebRTC HD video/audio, text chat, dark mode, Google OAuth.
 
 ### 🛠 Planned Improvements:
 - **Deployment:**
